@@ -36,7 +36,14 @@ module.exports = function(fs) {
             var data = arr[i].split(',');
             var obj = {};
             for (var j = 0; j < data.length; j++) {
-                obj[headers[j].trim().toLowerCase()] = data[j].trim();
+                var propertyName = headers[j].trim().toLowerCase()
+                var value = null
+                if (propertyName != "name")
+                    value = parseInt(data[j].trim())
+                else 
+                    value = data[j].trim()
+                
+                obj[propertyName] = value
             }
             jsonObj.push(obj);
         }

@@ -3,12 +3,9 @@
 
 
 
-
-
-var a = process.argv[3]
-
-
-if (a)
-    console.log("tem")
-else
-    console.log("não tem")
+function checkUserInput() {
+    if (1 < 10) {
+        return 
+    }
+}
+console.log(2)
