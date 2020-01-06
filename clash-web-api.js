@@ -1,13 +1,11 @@
-/**
- * To implement
- * 
- * Wars win rate
- * donations
- * Number of wars played in the last 10
- * Collected cards in the last war
+/** 
+ * Wars win rate - 10 wars
+ * Donations - Current season
+ * Number of wars played - 10 wars
+ * Collected cards - 10 wars
  */
 
-module.exports = function(utils, parser) {
+module.exports = function(utils, parser, request) {
 
     if (!utils)
         throw "Invalid utils."
@@ -15,11 +13,12 @@ module.exports = function(utils, parser) {
     if (!parser)
         throw "Invalid parser."
 
+
     // 3 points consts
     const MAX_WIN_RATE = 65
     const MAX_LAST_WARS_PARTICIPATIONS = 10
-    const MAX_DONATIONS_RANKING = 12 
-    const MAX_COLLECTED_CARDS = 2000
+    const MAX_DONATIONS_RANKING = 12
+    const MAX_COLLECTED_CARDS = 2100
 
     // 1 point consts
     const MEDIUM_WIN_RATE = 45
@@ -28,7 +27,6 @@ module.exports = function(utils, parser) {
     const MEDIUM_COLLECTED_CARDS = 1900
 
     return {
-        checkClanExists: checkClanExists,
         leaderboard: leaderboard,
         getWarsWinRate: getWarsWinRate,
         getLastWarsParticipations: getLastWarsParticipations,
@@ -36,15 +34,18 @@ module.exports = function(utils, parser) {
         getCollectedCards: getCollectedCards
     }
 
-    // Checks if clan exists
-    function checkClanExists() {
+    // returns clan member count
+    function getMemberCount() {
         return new Promise(function(resolve, reject) {
             var options = utils.options(utils.CLAN_URL)
 
-            utils.request.get(options, (err, res, body) => {
-                if (err != null)
-                    reject("Please insert a valid clan tag.")
-                resolve()
+            request.get(options, (err, res, body) => {
+                if (err != null) {
+                    reject(err)
+                    return
+                } 
+
+                resolve(res.body.memberCount)
             });
         })
     }
@@ -62,7 +63,7 @@ module.exports = function(utils, parser) {
         var options = utils.options(utils.CLAN_URL)
         var members = []
 
-        utils.request.get(options, (err, res, body) => {
+        request.get(options, (err, res, body) => {
             if (err != null) {
                 console.log(err)
                 return
@@ -98,7 +99,7 @@ module.exports = function(utils, parser) {
     function getWarsWinRate(readWrite) {
         var options = utils.options(utils.CLAN_LAST_WARS_URL)
 
-        utils.request.get(options, (err, res, body) => {
+        request.get(options, (err, res, body) => {
             if (err != null) {  
                 console.log(err)
                 return
@@ -162,7 +163,7 @@ module.exports = function(utils, parser) {
     function getLastWarsParticipations(readWrite) {
         var options = utils.options(utils.CLAN_LAST_WARS_URL)
 
-        utils.request.get(options, (err, res, body) => {
+        request.get(options, (err, res, body) => {
             if (err != null) {  
                 console.log(err)
                 return
@@ -176,12 +177,12 @@ module.exports = function(utils, parser) {
                 console.log("This command doesn't have a definition for " + readWrite)        
         });
 
-        // res = Array of arrays representing each war
+        // data = Array of arrays representing each war
         // Each war contains an array of participants
-        function fillParticipantsTimes(res) {
+        function fillParticipantsTimes(data) {
             var wars = []
             var participantsTimes = []
-            res.body.forEach(war => {
+            data.body.forEach(war => {
                 var participants = []
                 war.participants.forEach(participant => {
                     var name = participant.name
@@ -214,7 +215,7 @@ module.exports = function(utils, parser) {
         const options = utils.options(utils.CLAN_URL)
         var players = []
 
-        utils.request.get(options, (err, res, body) => {
+        request.get(options, (err, res, body) => {
             if (err != null) {
                 console.log(err)
                 return
@@ -246,33 +247,61 @@ module.exports = function(utils, parser) {
     // Collected cards by each player in the last war
     function getCollectedCards(readWrite) {
 
-        const options = utils.options(utils.CLAN_LAST_WAR_URL)
-        var players = []
+        const options = utils.options(utils.CLAN_LAST_WARS_URL)
 
-        utils.request.get(options, (err, res, body) => {
-            if (err != null) { 
+        request.get(options, (err, res, body) => {
+            if (err != null) {  
                 console.log(err)
                 return
-            } 
-            res.body.participants.forEach(member => {
-                var cards = member.cardsEarned
-                var points = getPoints("collected_cards", cards)
-
-                player = {
-                    "name": member.name,
-                    "collectedCards": cards,
-                    "points": points
-                }
-                players.push(player)
-            })
-            players.sort(function(a, b){return b.collectedCards - a.collectedCards});
+            }
+            var participantsCollectedCards = fillParticipantsCollectedCards(res)
             if (readWrite == "write")
-                updateLeaderboardFile(players)
+                updateLeaderboardFile(participantsCollectedCards)
             else if (readWrite == "read")
-                console.table(players)    
-            else 
-                console.log("This command doesn't have a definition for " + readWrite)
+                console.table(participantsCollectedCards)    
         });
+
+        function fillParticipantsCollectedCards(data) {
+            var result = []
+            data.body.forEach(war => {
+                var participants = war.participants
+                for (var i = 0; i < participants.length; i++) {
+                    var player = participants[i]
+                    var found = false
+                    for (var j = 0; j < result.length; j++) {
+                        if (player.name == result[j].name) {
+                            result[j].cardsEarned += player.cardsEarned
+                            result[j].warsPlayed++
+                            found = true
+                            break
+                        }
+                    }
+                    if (!found) {
+                        var playerInfo = {
+                            "name": player.name,
+                            "cardsEarned": player.cardsEarned,
+                            "warsPlayed": 1
+                        }
+                        result.push(playerInfo)
+                    }
+                }
+            })
+            var final = []
+            result.forEach(player => {
+                
+                var cardsEarned = parseInt(player.cardsEarned / player.warsPlayed)
+                var points = getPoints("cardsEarned", cardsEarned)
+
+                final.push({
+                    "name": player.name, 
+                    "warsPlayed": player.warsPlayed,
+                    "cardsEarned": cardsEarned,
+                    "points": points
+                })
+            })
+            final.sort(function(a, b){return b.cardsEarned - a.cardsEarned || b.warsPlayed - a.warsPlayed})
+            return final
+        }
     }
 
     function updateLeaderboardFile(participantsTimes) {
@@ -326,7 +355,7 @@ module.exports = function(utils, parser) {
                 case value <= MEDIUM_DONATIONS_RANKING: return 1
                 default:                                return 0
             }
-            case "collected_cards": switch (true) {
+            case "cardsEarned": switch (true) {
                 case value >= MAX_COLLECTED_CARDS:    return 3
                 case value >= MEDIUM_COLLECTED_CARDS: return 1
                 default:                              return 0
@@ -337,7 +366,7 @@ module.exports = function(utils, parser) {
     function getPlayerInfo() {
         const options = utils.options(utils.PLAYER_URL)
 
-        utils.request.get(options, (err, res, body) => {
+        request.get(options, (err, res, body) => {
             if (err == null) {  
                 console.log(res.body)     
             } else {

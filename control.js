@@ -1,7 +1,8 @@
 const fs = require('fs');
+const request = require('request')
 const utils = require('./utils')()
 const parser = require('./parser')(fs)
-const api = require('./clash-web-api')(utils, parser)
+const api = require('./clash-web-api')(utils, parser, request)
 
 // ROUTING
 var handlers = {}
@@ -16,27 +17,15 @@ register("last_wars", api.getLastWarsParticipations)
 register("donations", api.getDonations)
 register("collected_cards", api.getCollectedCards)
 
-var clanTag = process.argv[2]
-var criteria = process.argv[3]
-var readWrite = process.argv[4]
+var criteria = process.argv[2]
+var readWrite = process.argv[3]
 
-if (checkUserInput()) {
-    utils.CLAN_TAG = clanTag
-    handlers[criteria](readWrite)
-}
+if (!checkUserInput())
+    return
+
+handlers[criteria](readWrite)
 
 function checkUserInput() {
-    if (!clanTag) {
-        console.log("Please insert the tag of a clan.")
-        return false
-    }
-
-    api.checkClanExists(clanTag)
-        .then()
-        .catch((message) => {
-            console.log(message) 
-            return false
-        })
     
     if (!handlers[criteria]) {
         console.log("Command doesn't exist.")

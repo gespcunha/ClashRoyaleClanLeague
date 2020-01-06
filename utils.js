@@ -1,7 +1,5 @@
 module.exports = function() {
 
-    const request = require('request')
-
     const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzM4OSwiaWRlbiI6IjM3OTU1NjM4Njg3MjQ5MjA0MiIsIm1kIjp7InVzZXJuYW1lIjoiUC5OZXNzIiwiZGlzY3JpbWluYXRvciI6IjA5NzIiLCJrZXlWZXJzaW9uIjozfSwidHMiOjE1NzczOTQwNTU0NjF9.hTys4wKd2UCKPOSPjb3mZrLbndDf_KdMNZ5SP21wIXU"
     // hotel tag is 9LU2Y8LU
     const CLAN_TAG = "9LU2Y8LU"
@@ -15,9 +13,7 @@ module.exports = function() {
     
     return {
         options: options,
-        request: request,
         CLAN_URL: CLAN_URL,
-        CLAN_TAG: CLAN_TAG,
         CLAN_LAST_WARS_URL: CLAN_LAST_WARS_URL,
         CLAN_LAST_WAR_URL:CLAN_LAST_WAR_URL,
         PLAYER_URL: PLAYER_URL
