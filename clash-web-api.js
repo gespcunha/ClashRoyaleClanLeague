@@ -13,7 +13,6 @@ module.exports = function(utils, parser, request) {
     if (!parser)
         throw "Invalid parser."
 
-
     // 3 points consts
     const MAX_WIN_RATE = 65
     const MAX_LAST_WARS_PARTICIPATIONS = 10
@@ -56,10 +55,6 @@ module.exports = function(utils, parser, request) {
             showLeaderboard()
             return
         }
-        else if (readWrite != "write") {
-            console.log("This command doesn't have a definition for " + readWrite)
-            return
-        }
         var options = utils.options(utils.CLAN_URL)
         var members = []
 
@@ -97,6 +92,7 @@ module.exports = function(utils, parser, request) {
 
     // War win rate over the last 10 wars
     function getWarsWinRate(readWrite) {
+
         var options = utils.options(utils.CLAN_LAST_WARS_URL)
 
         request.get(options, (err, res, body) => {
@@ -107,10 +103,8 @@ module.exports = function(utils, parser, request) {
             var participantsWinRates = fillParticipantsWinRate(res)
             if (readWrite == "write")
                 updateLeaderboardFile(participantsWinRates)
-            else if (readWrite == "read")
-                console.table(participantsWinRates)    
-            else 
-                console.log("This command doesn't have a definition for " + readWrite)        
+            else
+                console.table(participantsWinRates)     
         });
 
         // res = Array of arrays representing each war
@@ -171,10 +165,8 @@ module.exports = function(utils, parser, request) {
             var participantsTimes = fillParticipantsTimes(res)
             if (readWrite == "write")
                 updateLeaderboardFile(participantsTimes)
-            else if (readWrite == "read")
-                console.table(participantsTimes)    
-            else 
-                console.log("This command doesn't have a definition for " + readWrite)        
+            else
+                console.table(participantsTimes)       
         });
 
         // data = Array of arrays representing each war
@@ -237,14 +229,12 @@ module.exports = function(utils, parser, request) {
             
             if (readWrite == "write")
                 updateLeaderboardFile(players)
-            else if (readWrite == "read")
-                console.table(players)    
-            else 
-                console.log("This command doesn't have a definition for " + readWrite)      
+            else
+                console.table(players)   
         });
     }
 
-    // Collected cards by each player in the last war
+    // Collected cards by each player over the last 10 wars
     function getCollectedCards(readWrite) {
 
         const options = utils.options(utils.CLAN_LAST_WARS_URL)
@@ -257,7 +247,7 @@ module.exports = function(utils, parser, request) {
             var participantsCollectedCards = fillParticipantsCollectedCards(res)
             if (readWrite == "write")
                 updateLeaderboardFile(participantsCollectedCards)
-            else if (readWrite == "read")
+            else
                 console.table(participantsCollectedCards)    
         });
 

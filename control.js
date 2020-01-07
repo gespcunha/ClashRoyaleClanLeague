@@ -37,5 +37,10 @@ function checkUserInput() {
         return false
     }
 
+    if  (readWrite != "read" && readWrite != "write") {
+        console.log("Read / Write parameter not recognized.")
+        return false
+    }
+
     return true
 }
