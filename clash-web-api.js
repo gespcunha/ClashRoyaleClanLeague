@@ -33,22 +33,6 @@ module.exports = function(utils, parser, request) {
         getCollectedCards: getCollectedCards
     }
 
-    // returns clan member count
-    function getMemberCount() {
-        return new Promise(function(resolve, reject) {
-            var options = utils.options(utils.CLAN_URL)
-
-            request.get(options, (err, res, body) => {
-                if (err != null) {
-                    reject(err)
-                    return
-                } 
-
-                resolve(res.body.memberCount)
-            });
-        })
-    }
-
     // Initiates the leaderboard
     function leaderboard(readWrite) {
         if (readWrite == "read") {
@@ -78,13 +62,13 @@ module.exports = function(utils, parser, request) {
             })
                 
             var data = parser.arrayToCsv(members, "RANKING,NAME,POINTS,GAMES,WINS,DRAWS,LOSSES\n")
-            parser.createFile(data, "Leaderboard.csv") 
+            parser.createFile(data, utils.CLAN_TAG + "Leaderboard.csv") 
         });
     }
 
     // Leaderboard
     function showLeaderboard() {
-        parser.readFile("Leaderboard.csv", function (data) {
+        parser.readFile(utils.CLAN_TAG + "Leaderboard.csv", function (data) {
             leaderboard = parser.csvToArray(data.toString().split("\n"))
             console.table(leaderboard)
         })
@@ -100,11 +84,12 @@ module.exports = function(utils, parser, request) {
                 console.log(err)
                 return
             }
-            var participantsWinRates = fillParticipantsWinRate(res)
-            if (readWrite == "write")
-                updateLeaderboardFile(participantsWinRates)
-            else
-                console.table(participantsWinRates)     
+            fillParticipantsWinRate(res).then(function(result) {
+                if (readWrite == "write")
+                    updateLeaderboardFile(result)
+                else 
+                    console.table(result)
+            })
         });
 
         // res = Array of arrays representing each war
@@ -149,7 +134,7 @@ module.exports = function(utils, parser, request) {
                 })
             })
             participantsWinRates.sort(function(a, b){return b.winRate - a.winRate});
-            return participantsWinRates
+            return removeNotInClan(participantsWinRates)
         }
     }
 
@@ -162,11 +147,12 @@ module.exports = function(utils, parser, request) {
                 console.log(err)
                 return
             }
-            var participantsTimes = fillParticipantsTimes(res)
-            if (readWrite == "write")
-                updateLeaderboardFile(participantsTimes)
-            else
-                console.table(participantsTimes)       
+            fillParticipantsTimes(res).then(function(result) {
+                if (readWrite == "write")
+                    updateLeaderboardFile(result)
+                else 
+                    console.table(result)
+            })   
         });
 
         // data = Array of arrays representing each war
@@ -198,7 +184,7 @@ module.exports = function(utils, parser, request) {
                 })
             }
             final.sort(function(a, b){return b.wars - a.wars});
-            return final
+            return removeNotInClan(final)
         }
     }
     
@@ -227,10 +213,12 @@ module.exports = function(utils, parser, request) {
                 players[i]["points"] = points
             }
             
-            if (readWrite == "write")
-                updateLeaderboardFile(players)
-            else
-                console.table(players)   
+            removeNotInClan(players).then(function(result) {
+                if (readWrite == "write")
+                    updateLeaderboardFile(result)
+                else 
+                    console.table(result)
+            })  
         });
     }
 
@@ -244,11 +232,12 @@ module.exports = function(utils, parser, request) {
                 console.log(err)
                 return
             }
-            var participantsCollectedCards = fillParticipantsCollectedCards(res)
-            if (readWrite == "write")
-                updateLeaderboardFile(participantsCollectedCards)
-            else
-                console.table(participantsCollectedCards)    
+            fillParticipantsCollectedCards(res).then(function(result) {
+                if (readWrite == "write")
+                    updateLeaderboardFile(result)
+                else 
+                    console.table(result)
+            })
         });
 
         function fillParticipantsCollectedCards(data) {
@@ -290,16 +279,50 @@ module.exports = function(utils, parser, request) {
                 })
             })
             final.sort(function(a, b){return b.cardsEarned - a.cardsEarned || b.warsPlayed - a.warsPlayed})
-            return final
+            return removeNotInClan(final)
         }
+    }
+    
+    // removes players that aren't in the clan
+    function removeNotInClan(allPlayers) {
+        return new Promise(function(resolve, reject) {
+            var options = utils.options(utils.CLAN_URL)
+            var inClan = []
+
+            request.get(options, (err, res, body) => {
+                if (err != null) {
+                    console.log(err)
+                    return
+                } 
+
+                res.body.members.forEach(member => {
+                    inClan.push({
+                        "name": member.name
+                    })
+                })
+                
+                for (var i = allPlayers.length-1; i >= 0; i--) {
+                    var found = false
+                    for (var j = 0; j < inClan.length; j++) {
+                        if (allPlayers[i].name == inClan[j].name) {
+                            found = true
+                            break
+                        }            
+                    }
+                    if (!found)
+                    allPlayers.splice(i,1)
+                }
+                resolve(allPlayers)
+            })
+        })        
     }
 
     function updateLeaderboardFile(participantsTimes) {
-        parser.readFile("Leaderboard.csv", function (data) {
+        parser.readFile(utils.CLAN_TAG + "Leaderboard.csv", function (data) {
             leaderboard = parser.csvToArray(data.toString().split("\n"))
             updatedLeaderboard = updateMembersInfo(participantsTimes, leaderboard)
             updatedLeaderboard = parser.arrayToCsv(updatedLeaderboard, "RANKING,NAME,POINTS,GAMES,WINS,DRAWS,LOSSES\n")
-            parser.createFile(updatedLeaderboard, "Leaderboard.csv")
+            parser.createFile(updatedLeaderboard, utils.CLAN_TAG + "Leaderboard.csv")
         })
     }
 
@@ -351,17 +374,5 @@ module.exports = function(utils, parser, request) {
                 default:                              return 0
             }
         }
-    }
-
-    function getPlayerInfo() {
-        const options = utils.options(utils.PLAYER_URL)
-
-        request.get(options, (err, res, body) => {
-            if (err == null) {  
-                console.log(res.body)     
-            } else {
-                console.log(err)
-            }
-        });
     }
 }

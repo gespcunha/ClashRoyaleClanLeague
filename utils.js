@@ -1,6 +1,7 @@
 module.exports = function() {
 
     const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzM4OSwiaWRlbiI6IjM3OTU1NjM4Njg3MjQ5MjA0MiIsIm1kIjp7InVzZXJuYW1lIjoiUC5OZXNzIiwiZGlzY3JpbWluYXRvciI6IjA5NzIiLCJrZXlWZXJzaW9uIjozfSwidHMiOjE1NzczOTQwNTU0NjF9.hTys4wKd2UCKPOSPjb3mZrLbndDf_KdMNZ5SP21wIXU"
+    // team tag is 2QG8V2C9
     // hotel tag is 9LU2Y8LU
     const CLAN_TAG = "9LU2Y8LU"
     const PNESS_TAG = "PG8VRVU9P"
@@ -13,6 +14,7 @@ module.exports = function() {
     
     return {
         options: options,
+        CLAN_TAG: CLAN_TAG,
         CLAN_URL: CLAN_URL,
         CLAN_LAST_WARS_URL: CLAN_LAST_WARS_URL,
         CLAN_LAST_WAR_URL:CLAN_LAST_WAR_URL,
