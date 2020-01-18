@@ -12,7 +12,7 @@ module.exports = function(utils, parser, request) {
 
     if (!parser)
         throw "Invalid parser."
-
+    
     // 3 points consts
     const MAX_WIN_RATE = 65
     const MAX_LAST_WARS_PARTICIPATIONS = 10
@@ -123,7 +123,7 @@ module.exports = function(utils, parser, request) {
             var participantsWinRates = []
             result.forEach(player => {
                 
-                var winRate = parseInt(((player.wins / player.battleCount) * 100).toFixed(1))
+                var winRate = Math.round(player.wins/ player.battleCount * 100)
 
                 var points = getPoints("win_rate", winRate)
 
@@ -212,7 +212,7 @@ module.exports = function(utils, parser, request) {
                 
                 players[i]["points"] = points
             }
-            
+
             removeNotInClan(players).then(function(result) {
                 if (readWrite == "write")
                     updateLeaderboardFile(result)
@@ -301,6 +301,7 @@ module.exports = function(utils, parser, request) {
                     })
                 })
                 
+                
                 for (var i = allPlayers.length-1; i >= 0; i--) {
                     var found = false
                     for (var j = 0; j < inClan.length; j++) {
@@ -310,8 +311,9 @@ module.exports = function(utils, parser, request) {
                         }            
                     }
                     if (!found)
-                    allPlayers.splice(i,1)
+                        allPlayers.splice(i,1)
                 }
+
                 resolve(allPlayers)
             })
         })        

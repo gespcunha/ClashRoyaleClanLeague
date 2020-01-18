@@ -1,40 +1,23 @@
+const fs = require('fs')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-all = [
-    {"name": "joao",    "age": 10},
-    {"name": "miguel",  "age": 20},
-    {"name": "pedro",   "age": 30},
-]
-
-inClan = [
-    {"name": "joao"},
-    {"name": "miguel"},
-    {"name": "sergio"}
-]
-
-for (var i = all.length-1; i >= 0; i--) {
-    var found = false
-    for (var j = 0; j < inClan.length; j++) {
-        console.log("comparing " + all[i].name + " with " + inClan[j].name)
-        if (all[i].name == inClan[j].name) {
-            found = true
-            break
-        }            
+fs.readFile('config.txt', (err, data) => { 
+    if (err) {
+        console.log("File not found.")
+        return
     }
-    if (!found)
-        all.splice(i,1)
-}
+    
+    values = dataToObject(data.toString().split("\n"))
+    console.log(values)
+})
 
-console.log(all)
+// Returns array with key:value objects
+function dataToObject(data) {
+    var values = {}
+    data.forEach(element => {
+        if (element.includes(':')) {
+            var temp = element.split(':')
+            values[temp[0]] = parseInt(temp[1].trim())
+        }
+    });
+    return values
+}
