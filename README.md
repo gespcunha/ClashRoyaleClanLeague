@@ -6,7 +6,7 @@ This is a simple command line application to run a **ClashRoyale league** in you
 
 ## How to use
 Open a command line in the root folder of the project and execute one of the commands below.
-If it's the first time execute ```npm install request```.
+If it's the first time, execute ```npm install request```.
 
 ## Commands
 ```
