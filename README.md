@@ -32,5 +32,5 @@ Collected cards average over the last 10 wars.
 Creates a file named "Fixture" showing the fixture results.
 
 - **write** - 
-Updates the file with general data. In case of criteria = leaderboard, the file sets 0 points to all players.
+Updates the file with general file with a fixture's result. In case of criteria = leaderboard, the file sets 0 points to all players.
 
