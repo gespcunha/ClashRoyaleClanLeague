@@ -35,3 +35,5 @@ Creates a file named "Fixture" showing the fixture results.
 - **write** - 
 Updates the file with general file with a fixture's result. In case of criteria = leaderboard, the file sets 0 points to all players (starts the league).
 
+## Clan tag
+To change the clan tag open the file ```utils.js``` and change the value of the variable ```CLAN_TAG```.
