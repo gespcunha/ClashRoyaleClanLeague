@@ -78,7 +78,6 @@ module.exports = function(utils, parser, request) {
     function getWarsWinRate(readWrite) {
 
         var options = utils.options(utils.CLAN_LAST_WARS_URL)
-
         request.get(options, (err, res, body) => {
             if (err != null) {  
                 console.log(err)
@@ -87,8 +86,10 @@ module.exports = function(utils, parser, request) {
             fillParticipantsWinRate(res).then(function(result) {
                 if (readWrite == "write")
                     updateLeaderboardFile(result)
-                else 
-                    console.table(result)
+                else {
+                    var data = parser.arrayToCsv(result, "NAME,WINRATE,POINTS\n")
+                    parser.createFile(data, "Fixture.csv")
+                }
             })
         });
 
@@ -150,8 +151,11 @@ module.exports = function(utils, parser, request) {
             fillParticipantsTimes(res).then(function(result) {
                 if (readWrite == "write")
                     updateLeaderboardFile(result)
-                else 
-                    console.table(result)
+                else {
+                    var data = parser.arrayToCsv(result, "NAME,WARS,POINTS\n")
+                    parser.createFile(data, "Fixture.csv")
+                } 
+                    
             })   
         });
 
@@ -216,8 +220,10 @@ module.exports = function(utils, parser, request) {
             removeNotInClan(players).then(function(result) {
                 if (readWrite == "write")
                     updateLeaderboardFile(result)
-                else 
-                    console.table(result)
+                else {
+                    var data = parser.arrayToCsv(result, "NAME,DONATIONS,POINTS\n")
+                    parser.createFile(data, "Fixture.csv")
+                }
             })  
         });
     }
@@ -235,8 +241,10 @@ module.exports = function(utils, parser, request) {
             fillParticipantsCollectedCards(res).then(function(result) {
                 if (readWrite == "write")
                     updateLeaderboardFile(result)
-                else 
-                    console.table(result)
+                else {
+                    var data = parser.arrayToCsv(result, "NAME,WARS PLAYED, COLLECTED CARDS,POINTS\n")
+                    parser.createFile(data, "Fixture.csv")
+                }
             })
         });
 
@@ -348,9 +356,14 @@ module.exports = function(utils, parser, request) {
         objToUpdate.sort(function(a, b){return b.points - a.points || b.games - a.games})
 
         // Set the ranking in each player
-        var i = 1
-        objToUpdate.forEach(member => member.ranking = i++)
+        insertRanking(objToUpdate)
         return objToUpdate
+    }
+
+    // Set the ranking in each player
+    function insertRanking(obj) {
+        var i = 1
+        obj.forEach(member => member.ranking = i++)
     }
 
     function getPoints(criteria, value) {
