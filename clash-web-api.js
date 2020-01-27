@@ -1,6 +1,6 @@
 /** 
  * Wars win rate - 10 wars
- * Donations - Current season
+ * Donations - Current week
  * Number of wars played - 10 wars
  * Collected cards - 10 wars
  */
@@ -13,6 +13,11 @@ module.exports = function(utils, parser, request) {
     if (!parser)
         throw "Invalid parser."
     
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////// POINTS TO EACH CRITERIA ////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // 3 points consts
     const MAX_WIN_RATE = 65
     const MAX_LAST_WARS_PARTICIPATIONS = 10
@@ -31,6 +36,31 @@ module.exports = function(utils, parser, request) {
         getLastWarsParticipations: getLastWarsParticipations,
         getDonations: getDonations,
         getCollectedCards: getCollectedCards
+    }
+    
+    function getPoints(criteria, value) {
+        switch (criteria) {
+            case "win_rate": switch (true) {
+                case value >= MAX_WIN_RATE:    return 3
+                case value >= MEDIUM_WIN_RATE: return 1
+                default:                       return 0
+            }
+            case "participations": switch (true) {
+                case value == MAX_LAST_WARS_PARTICIPATIONS:    return 3
+                case value >= MEDIUM_LAST_WARS_PARTICIPATIONS: return 1
+                default:                                       return 0
+            } 
+            case "donations": switch(true) {
+                case value <= MAX_DONATIONS_RANKING:    return 3
+                case value <= MEDIUM_DONATIONS_RANKING: return 1
+                default:                                return 0
+            }
+            case "cardsEarned": switch (true) {
+                case value >= MAX_COLLECTED_CARDS:    return 3
+                case value >= MEDIUM_COLLECTED_CARDS: return 1
+                default:                              return 0
+            }
+        }
     }
 
     // Initiates the leaderboard
@@ -364,30 +394,5 @@ module.exports = function(utils, parser, request) {
     function insertRanking(obj) {
         var i = 1
         obj.forEach(member => member.ranking = i++)
-    }
-
-    function getPoints(criteria, value) {
-        switch (criteria) {
-            case "win_rate": switch (true) {
-                case value >= MAX_WIN_RATE:    return 3
-                case value >= MEDIUM_WIN_RATE: return 1
-                default:                       return 0
-            }
-            case "participations": switch (true) {
-                case value == MAX_LAST_WARS_PARTICIPATIONS:    return 3
-                case value >= MEDIUM_LAST_WARS_PARTICIPATIONS: return 1
-                default:                                       return 0
-            } 
-            case "donations": switch(true) {
-                case value <= MAX_DONATIONS_RANKING:    return 3
-                case value <= MEDIUM_DONATIONS_RANKING: return 1
-                default:                                return 0
-            }
-            case "cardsEarned": switch (true) {
-                case value >= MAX_COLLECTED_CARDS:    return 3
-                case value >= MEDIUM_COLLECTED_CARDS: return 1
-                default:                              return 0
-            }
-        }
     }
 }
