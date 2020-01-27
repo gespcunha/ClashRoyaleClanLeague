@@ -1,4 +1,5 @@
 # ClashRoyale Clan League
+This is a simple command line application to run a **ClashRoyale league** in your clan. The available criterias are explained below. There isn't a fixed number of fixtures so you can do how many you want. 
 
 ## Requirements
 - [NodeJS](https://nodejs.org/)
