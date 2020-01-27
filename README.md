@@ -12,25 +12,25 @@ node control <criteria> <show | write>
 ```
   
 ### Criteria
-- leaderboard - 
+- **leaderboard** - 
 Data about the general leaderboard of all players.
 
--  win_rates - 
+-  **win_rates** - 
 Win rate percentage over the last 10 wars.
 
-- last_wars - 
+- **last_wars** - 
 Number of participations over the last 10 wars.
 
-- donations - 
+- **donations** - 
 Number of donations during the week. Resets from sunday to monday.
 
-- collected_cards -
+- **collected_cards** -
 Collected cards average over the last 10 wars.
 
 ### Show | Write
-- read - 
+- **read** - 
 Creates a file named "Fixture" showing the fixture results.
 
-- write - 
+- **write** - 
 Updates the file with general data. In case of criteria = leaderboard, the file sets 0 points to all players.
 
