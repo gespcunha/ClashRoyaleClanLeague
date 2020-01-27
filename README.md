@@ -7,7 +7,9 @@
 Open a command line in the root folder of the project and execute one of the commands below.
 
 ## Commands
+```
 node control <criteria> <show | write>
+```
   
 ### Criteria
 - leaderboard - 
