@@ -19,23 +19,26 @@ module.exports = function(utils, parser, request) {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // 3 points consts
-    const MAX_WIN_RATE = 65
-    const MAX_LAST_WARS_PARTICIPATIONS = 10
-    const MAX_DONATIONS_RANKING = 12
-    const MAX_COLLECTED_CARDS = 2100
+    const MAX_WIN_RATE = 65                     // this or higher
+    const MAX_LAST_WARS_PARTICIPATIONS = 10     // this
+    const MAX_DONATIONS_RANKING = 12            // from 1 to this
+    const MAX_COLLECTED_CARDS = 2100            // this or higher
+    const MAX_TROPHIES = 12                     // from 1 to this
 
     // 1 point consts
-    const MEDIUM_WIN_RATE = 45
-    const MEDIUM_LAST_WARS_PARTICIPATIONS = 7
-    const MEDIUM_DONATIONS_RANKING = 24
-    const MEDIUM_COLLECTED_CARDS = 1900
+    const MEDIUM_WIN_RATE = 45                  // this or higher
+    const MEDIUM_LAST_WARS_PARTICIPATIONS = 7   // this or higher
+    const MEDIUM_DONATIONS_RANKING = 24         // from this to max number of members
+    const MEDIUM_COLLECTED_CARDS = 1900         // this or higher
+    const MEDIUM_TROPHIES = 24                  // from this to max number of members
 
     return {
         leaderboard: leaderboard,
         getWarsWinRate: getWarsWinRate,
         getLastWarsParticipations: getLastWarsParticipations,
         getDonations: getDonations,
-        getCollectedCards: getCollectedCards
+        getCollectedCards: getCollectedCards,
+        getTrophies: getTrophies
     }
     
     function getPoints(criteria, value) {
@@ -59,6 +62,11 @@ module.exports = function(utils, parser, request) {
                 case value >= MAX_COLLECTED_CARDS:    return 3
                 case value >= MEDIUM_COLLECTED_CARDS: return 1
                 default:                              return 0
+            }
+            case "trophies":  switch (true) {
+                case value <= MAX_TROPHIES:    return 3
+                case value <= MEDIUM_TROPHIES: return 1
+                default:                       return 0
             }
         }
     }
@@ -101,6 +109,45 @@ module.exports = function(utils, parser, request) {
         parser.readFile(utils.CLAN_TAG + "Leaderboard.csv", function (data) {
             leaderboard = parser.csvToArray(data.toString().split("\n"))
             console.table(leaderboard)
+        })
+    }
+
+    // Trophies
+    function getTrophies(readWrite) {
+        var options = utils.options(utils.CLAN_URL)
+
+        var players = []
+
+        request.get(options, (err, res, body) => {
+            if (err != null) {
+                console.log(err)
+                return
+            }
+
+            res.body.members.forEach(member => {
+
+                player = {
+                    "name": member.name,
+                    "trophies": member.trophies
+                }
+                players.push(player)
+            })
+
+            players.sort(function(a, b){return b.trophies - a.trophies})
+
+            for (let i = 1; i <= players.length; i++) {
+                var points = getPoints("trophies", i) 
+                players[i-1]["points"] = points
+            }
+
+            removeNotInClan(players).then(function(result) {
+                if (readWrite == "write")
+                    updateLeaderboardFile(result)
+                else {
+                    var data = parser.arrayToCsv(result, "NAME,TROPHIES,POINTS\n")
+                    parser.createFile(data, "Fixture.csv")
+                }
+            }) 
         })
     }
 
@@ -185,7 +232,6 @@ module.exports = function(utils, parser, request) {
                     var data = parser.arrayToCsv(result, "NAME,WARS,POINTS\n")
                     parser.createFile(data, "Fixture.csv")
                 } 
-                    
             })   
         });
 
@@ -241,10 +287,9 @@ module.exports = function(utils, parser, request) {
                 players.push(player)
             })
             players.sort(function(a, b){return b.donations - a.donations});
-            for (let i = 0; i < players.length; i++) {
-                var points = getPoints("donations", i)
-                
-                players[i]["points"] = points
+            for (let i = 1; i <= players.length; i++) {
+                var points = getPoints("donations", i) 
+                players[i-1]["points"] = points
             }
 
             removeNotInClan(players).then(function(result) {

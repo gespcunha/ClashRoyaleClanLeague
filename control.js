@@ -16,6 +16,7 @@ register("win_rates", api.getWarsWinRate)
 register("last_wars", api.getLastWarsParticipations)
 register("donations", api.getDonations)
 register("collected_cards", api.getCollectedCards)
+register("trophies", api.getTrophies)
 
 var criteria = process.argv[2]
 var readWrite = process.argv[3]

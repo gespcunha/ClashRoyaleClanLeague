@@ -29,6 +29,9 @@ Number of donations during the week. Resets from sunday to monday.
 - **collected_cards** -
 Collected cards average over the last 10 wars.
 
+- **trophies** - 
+Number of trophies.
+
 ### Show | Write
 - **read** - 
 Creates a file named "Fixture" showing the fixture results.
