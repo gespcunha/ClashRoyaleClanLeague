@@ -11,7 +11,7 @@ If it's the first time, execute ```npm install request```.
 
 ## Commands
 ```
-node control <criteria> <show | write>
+node control <criteria> <read | write>
 ```
   
 ### Criteria
@@ -33,7 +33,7 @@ Collected cards average over the last 10 wars.
 - **trophies** - 
 Number of trophies.
 
-### Show | Write
+### Read | Write
 - **read** - 
 Creates a file named "Fixture" showing the fixture results.
 

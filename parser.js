@@ -17,12 +17,17 @@ module.exports = function(fs) {
         fs.writeFile(dir + filePath, data, function (err) {
             if (err) 
                 throw err;
-            console.log('Saved!');
+            console.log(`Saved in ${dir + filePath}`);
         });
     }
 
     function readFile(filePath, callback) {
-        fs.readFile(dir + filePath, (err, data) => { 
+        var fullPath = dir + filePath
+        if (!fs.existsSync(fullPath)) {
+            console.log(`File ${fullPath} doesn't exist.`)
+            return
+        } 
+        fs.readFile(fullPath, (err, data) => { 
             if (err) 
                 throw err; 
             callback(data)
