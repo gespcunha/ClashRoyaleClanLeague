@@ -74,7 +74,7 @@ module.exports = function(utils, parser, request) {
     // Initiates the leaderboard
     function leaderboard(readWrite) {
         if (readWrite == "read") {
-            showLeaderboard()
+            console.log("Just check the file in /csv folder.")
             return
         }
         var options = utils.options(utils.CLAN_URL)
@@ -85,9 +85,9 @@ module.exports = function(utils, parser, request) {
                 console.log(err)
                 return
             } 
-
+            
             var i = 1
-            res.body.members.forEach(member => {
+            body.memberList.forEach(member => {
                 members.push({
                     "rank": i++,
                     "name": member.name,
@@ -104,14 +104,6 @@ module.exports = function(utils, parser, request) {
         });
     }
 
-    // Leaderboard
-    function showLeaderboard() {
-        parser.readFile(utils.CLAN_TAG + "Leaderboard.csv", function (data) {
-            leaderboard = parser.csvToArray(data.toString().split("\n"))
-            console.table(leaderboard)
-        })
-    }
-
     // Trophies
     function getTrophies(readWrite) {
         var options = utils.options(utils.CLAN_URL)
@@ -124,7 +116,7 @@ module.exports = function(utils, parser, request) {
                 return
             }
 
-            res.body.members.forEach(member => {
+            res.body.memberList.forEach(member => {
 
                 player = {
                     "name": member.name,
@@ -160,7 +152,7 @@ module.exports = function(utils, parser, request) {
                 console.log(err)
                 return
             }
-            fillParticipantsWinRate(res).then(function(result) {
+            fillParticipantsWinRate(body.items).then(function(result) {
                 if (readWrite == "write")
                     updateLeaderboardFile(result)
                 else {
@@ -172,16 +164,16 @@ module.exports = function(utils, parser, request) {
 
         // res = Array of arrays representing each war
         // Each war contains an array of participants
-        function fillParticipantsWinRate(res) {
+        function fillParticipantsWinRate(items) {
             var result = []
-            res.body.forEach(war => {
+            items.forEach(war => {
                 var participants = war.participants
                 for (var i = 0; i < participants.length; i++) {
                     var player = participants[i]
                     var found = false
                     for (var j = 0; j < result.length; j++) {
                         if (player.name == result[j].name) {
-                            result[j].battleCount += player.battleCount
+                            result[j].numberOfBattles += player.numberOfBattles
                             result[j].wins += player.wins
                             found = true
                             break
@@ -190,7 +182,7 @@ module.exports = function(utils, parser, request) {
                     if (!found) {
                         var playerInfo = {
                             "name": player.name,
-                            "battleCount": player.battleCount,
+                            "numberOfBattles": player.numberOfBattles,
                             "wins": player.wins
                         }
                         result.push(playerInfo)
@@ -201,7 +193,7 @@ module.exports = function(utils, parser, request) {
             var participantsWinRates = []
             result.forEach(player => {
                 
-                var winRate = Math.round(player.wins/ player.battleCount * 100)
+                var winRate = Math.round(player.wins/ player.numberOfBattles * 100)
 
                 var points = getPoints("win_rate", winRate)
 
@@ -211,7 +203,7 @@ module.exports = function(utils, parser, request) {
                     "points": points
                 })
             })
-            participantsWinRates.sort(function(a, b){return b.winRate - a.winRate});
+            participantsWinRates.sort(function(a, b){return b.winRate - a.winRate})
             return removeNotInClan(participantsWinRates)
         }
     }
@@ -225,7 +217,7 @@ module.exports = function(utils, parser, request) {
                 console.log(err)
                 return
             }
-            fillParticipantsTimes(res).then(function(result) {
+            fillParticipantsTimes(body.items).then(function(result) {
                 if (readWrite == "write")
                     updateLeaderboardFile(result)
                 else {
@@ -237,10 +229,10 @@ module.exports = function(utils, parser, request) {
 
         // data = Array of arrays representing each war
         // Each war contains an array of participants
-        function fillParticipantsTimes(data) {
+        function fillParticipantsTimes(items) {
             var wars = []
             var participantsTimes = []
-            data.body.forEach(war => {
+            items.forEach(war => {
                 var participants = []
                 war.participants.forEach(participant => {
                     var name = participant.name
@@ -279,7 +271,7 @@ module.exports = function(utils, parser, request) {
                 return
             }    
             
-            res.body.members.forEach(member => {
+            res.body.memberList.forEach(member => {
                 player = {
                     "name": member.name,
                     "donations": member.donations                    
@@ -313,7 +305,7 @@ module.exports = function(utils, parser, request) {
                 console.log(err)
                 return
             }
-            fillParticipantsCollectedCards(res).then(function(result) {
+            fillParticipantsCollectedCards(body.items).then(function(result) {
                 if (readWrite == "write")
                     updateLeaderboardFile(result)
                 else {
@@ -323,9 +315,9 @@ module.exports = function(utils, parser, request) {
             })
         });
 
-        function fillParticipantsCollectedCards(data) {
+        function fillParticipantsCollectedCards(items) {
             var result = []
-            data.body.forEach(war => {
+            items.forEach(war => {
                 var participants = war.participants
                 for (var i = 0; i < participants.length; i++) {
                     var player = participants[i]
@@ -378,7 +370,7 @@ module.exports = function(utils, parser, request) {
                     return
                 } 
 
-                res.body.members.forEach(member => {
+                res.body.memberList.forEach(member => {
                     inClan.push({
                         "name": member.name
                     })
