@@ -1,8 +1,11 @@
 const fs = require('fs');
 const request = require('request')
-const utils = require('./utils')()
 const parser = require('./parser')(fs)
-const api = require('./clash-web-api')(utils, parser, request)
+const points = require('./points')()
+const utils = require('./utils')()
+const clashApi = require('./clash-api')(request, utils, points)
+const services = require('./services')(clashApi)
+const webApi = require('./web-api')(services, parser, utils)
 
 // ROUTING
 var handlers = {}
@@ -11,12 +14,12 @@ function register(criteria, handler) {
 }
 
 // ROUTES REGISTERS
-register("leaderboard", api.leaderboard)
-register("win_rates", api.getWarsWinRate)
-register("last_wars", api.getLastWarsParticipations)
-register("donations", api.getDonations)
-register("collected_cards", api.getCollectedCards)
-register("trophies", api.getTrophies)
+register("leaderboard", webApi.getLeaderboard)
+register("donations", webApi.getDonations)
+register("trophies", webApi.getTrophies)
+register("win_rates", webApi.getWinRate)
+register("participations", webApi.getParticipations)
+register("collected_cards", webApi.getCollectedCards)
 
 var criteria = process.argv[2]
 var readWrite = process.argv[3]

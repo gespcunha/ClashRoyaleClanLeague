@@ -10,7 +10,8 @@ module.exports = function(fs) {
         createFile: createFile,
         readFile: readFile,
         arrayToCsv: arrayToCsv,
-        csvToArray: csvToArray
+        csvToArray: csvToArray,
+        getHeadersUpperCased: getHeadersUpperCased
     }
 
     function createFile(data, filePath) {
@@ -72,5 +73,17 @@ module.exports = function(fs) {
                 str += '\n';
         }
         return str;
+    }
+
+    // returns object properties uppercased and splited by ,
+    function getHeadersUpperCased(array) {
+        var props = Object.keys(array[0])
+        var result = ''
+        for (let i = 0; i < props.length-1; i++){
+            result += props[i].toUpperCase() + ","
+        }
+    
+        result += props[props.length-1].toUpperCase() + "\n"
+        return result
     }
 }

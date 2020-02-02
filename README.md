@@ -21,7 +21,7 @@ Data about the general leaderboard of all players.
 -  **win_rates** - 
 Win rate percentage over the last 10 wars.
 
-- **last_wars** - 
+- **participations** - 
 Number of participations over the last 10 wars.
 
 - **donations** - 
