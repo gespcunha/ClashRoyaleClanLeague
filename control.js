@@ -1,11 +1,12 @@
-const fs = require('fs');
+const fs = require('fs')
+const { exec } = require('child_process');
 const request = require('request')
-const parser = require('./parser')(fs)
+const parser = require('./parser')(fs, './csv')
 const points = require('./points')()
 const utils = require('./utils')()
 const clashApi = require('./clash-api')(request, utils, points)
 const services = require('./services')(clashApi)
-const webApi = require('./web-api')(services, parser, utils)
+const webApi = require('./web-api')(services, parser, utils, exec)
 
 // ROUTING
 var handlers = {}
