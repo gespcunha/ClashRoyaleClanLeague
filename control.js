@@ -1,51 +1,23 @@
-const fs = require('fs')
-const { exec } = require('child_process');
+const fs = require('fs');
 const request = require('request')
-const parser = require('./parser')(fs, './csv')
+const readline = require('readline')
+const chalk = require('chalk')
+const router = require('./router')
+const userInterface = require('./user-interface')(readline, chalk)
+const parser = require('./parser')(fs, chalk)
 const points = require('./points')()
 const utils = require('./utils')()
 const clashApi = require('./clash-api')(request, utils, points)
 const services = require('./services')(clashApi)
-const webApi = require('./web-api')(services, parser, utils, exec)
-
-// ROUTING
-var handlers = {}
-function register(criteria, handler) {
-    handlers[criteria] = handler;
-}
+const webApi = require('./web-api')(services, parser, utils, chalk)
 
 // ROUTES REGISTERS
-register("leaderboard", webApi.getLeaderboard)
-register("donations", webApi.getDonations)
-register("trophies", webApi.getTrophies)
-register("win_rates", webApi.getWinRate)
-register("participations", webApi.getParticipations)
-register("collected_cards", webApi.getCollectedCards)
+router.register(1, "Leaderboard", webApi.getLeaderboard)
+router.register(2, "Donations", webApi.getDonations)
+router.register(3, "Trophies", webApi.getTrophies)
+router.register(4, "Win rates", webApi.getWinRate)
+router.register(5, "Participations", webApi.getParticipations)
+router.register(6, "Average of collected cards", webApi.getCollectedCards)
 
-var criteria = process.argv[2]
-var readWrite = process.argv[3]
-
-if (!checkUserInput())
-    return
-
-handlers[criteria](readWrite)
-
-function checkUserInput() {
-    
-    if (!handlers[criteria]) {
-        console.log("Command doesn't exist.")
-        return false 
-    }
-    
-    if (!readWrite) {
-        console.log("Specify if you want to read or write.")
-        return false
-    }
-
-    if  (readWrite != "read" && readWrite != "write") {
-        console.log("Read / Write parameter not recognized.")
-        return false
-    }
-
-    return true
-}
+var handlers = router.handlers
+userInterface.startUI(handlers)

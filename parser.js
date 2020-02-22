@@ -1,5 +1,12 @@
-module.exports = function(fs) {
-    var dir = './csv/'
+module.exports = function(fs, chalk) {
+
+    if (!fs) 
+        throw "Invalid fs."
+
+    if (!chalk) 
+        throw "Invalid chalk."
+
+    var dir = './csv/';
 
     if (!fs.existsSync(dir)){
         fs.mkdirSync(dir);
@@ -10,33 +17,27 @@ module.exports = function(fs) {
         readFile: readFile,
         arrayToCsv: arrayToCsv,
         csvToArray: csvToArray,
-        getHeadersUpperCased: getHeadersUpperCased,
-        dir: dir
+        getHeadersUpperCased: getHeadersUpperCased
     }
 
-    // return 0 - success
-    // return 1 - error
     function createFile(data, filePath) {
-        return new Promise(function(resolve, reject) {
-            fs.writeFile(dir + filePath, data, function (err) {
-                if (err) 
-                    reject(`File ${dir + filePath} does't exist or is opened.`)
-                
-                resolve(`Saved in ${dir + filePath}`)
-            })
-        })
+        fs.writeFile(dir + filePath, data, function (err) {
+            if (err) 
+                throw err;
+            console.log(chalk.green(`Saved in ${dir + filePath}`))
+        });
     }
 
-    // return 0 - success
-    // return 1 - error
-    function readFile(filePath) {
-        return new Promise(function(resolve, reject) {
-            fs.readFile(dir + filePath, (err, data) => { 
-                if (err) 
-                    reject(`File ${dir + filePath} doesn't exist or is opened.`)
-                    
-                resolve(data)
-            })
+    function readFile(filePath, callback) {
+        var fullPath = dir + filePath
+        if (!fs.existsSync(fullPath)) {
+            console.log(chalk.red.bold(`File ${fullPath} doesn't exist.`))
+            return
+        } 
+        fs.readFile(fullPath, (err, data) => { 
+            if (err) 
+                throw err; 
+            callback(data)
         })
     }
 

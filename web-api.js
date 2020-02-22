@@ -1,13 +1,13 @@
-module.exports = function(services, parser, utils, exec) {
+module.exports = function(services, parser, utils, chalk) {
     
     if (!services)
         throw "Invalid services."
 
     if (!parser)
         throw "Invalid parser."    
-  
-    const leaderboardPath = `${utils.CLAN_TAG}Leaderboard.csv`
-    const fixturePath     = `Fixture.csv`
+
+    if (!chalk) 
+        throw "Invalid chalk."
 
     return {
         getDonations: getDonations,
@@ -20,31 +20,17 @@ module.exports = function(services, parser, utils, exec) {
 
     function getLeaderboard(readWrite) {
         if (readWrite == "read") {
-            exec(`start ${leaderboardPath}`, (err, stdout, stderr) => {
-                if (err != null)
-                    console.log(`File ${parser.dir + leaderboardPath} doesn't exist or is opened.`)
-            })
+            console.log(chalk.green("Just open the file ...Leaderboard"))
             return
         }
         services.getLeaderboard()
             .then(function (result) {
                 var headers = parser.getHeadersUpperCased(result)
                 var data = parser.arrayToCsv(result, headers)
-                parser.createFile(data, leaderboardPath)
-                    .then(msg => {
-                        console.log(msg)
-                        exec(`start ${parser.dir + leaderboardPath}`, (err, stdout, stderr) => {
-                            if (err != null)
-                                console.log(`File ${parser.dir + leaderboardPath} doesn't exist or is opened.`)
-                        })
-                    })
-                    .catch(msg => {
-                        console.log(msg)
-                        return
-                    })
+                parser.createFile(data, utils.CLAN_TAG + "Leaderboard.csv")
             })
             .catch(function (errMsg) {
-                console.log(errMsg)
+                console.log(chalk.red.bold(errMsg))
             })
     }
 
@@ -54,25 +40,14 @@ module.exports = function(services, parser, utils, exec) {
                 if (readWrite == "read") {
                     var headers = parser.getHeadersUpperCased(result)
                     var data = parser.arrayToCsv(result, headers)
-                    parser.createFile(data, fixturePath)
-                        .then(msg => {
-                            console.log(msg)
-                            exec(`start ${parser.dir + fixturePath}`, (err, stdout, stderr) => {
-                                if (err != null)
-                                    console.log(`File ${parser.dir + fixturePath} doesn't exist or is opened.`)
-                            })
-                        })
-                        .catch(msg => {
-                            console.log(msg)
-                            return
-                        })
+                    parser.createFile(data, "Fixture.csv")
                 }
                 else {
                     updateLeaderboardFile(result)
                 }
             })
             .catch(function (errMsg) {
-                console.log(errMsg)
+                console.log(chalk.red.bold(errMsg))
             })
     }
 
@@ -82,25 +57,14 @@ module.exports = function(services, parser, utils, exec) {
                 if (readWrite == "read") {
                     var headers = parser.getHeadersUpperCased(result)
                     var data = parser.arrayToCsv(result, headers)
-                    parser.createFile(data, fixturePath)
-                        .then(msg => {
-                            console.log(msg)
-                            exec(`start ${parser.dir + fixturePath}`, (err, stdout, stderr) => {
-                                if (err != null)
-                                    console.log(`File ${parser.dir + fixturePath} doesn't exist or is opened.`)
-                            })
-                        })
-                        .catch(msg => {
-                            console.log(msg)
-                            return
-                        })
+                    parser.createFile(data, "Fixture.csv")
                 }
                 else {
                     updateLeaderboardFile(result)
                 }
             })
             .catch(function (errMsg) {
-                console.log(errMsg)
+                console.log(chalk.red.bold(errMsg))
             })
     }
 
@@ -110,18 +74,7 @@ module.exports = function(services, parser, utils, exec) {
                 if (readWrite == "read") {
                     var headers = parser.getHeadersUpperCased(result)
                     var data = parser.arrayToCsv(result, headers)
-                    parser.createFile(data, fixturePath)
-                        .then(msg => {
-                            console.log(msg)
-                            exec(`start ${parser.dir + fixturePath}`, (err, stdout, stderr) => {
-                                if (err != null)
-                                    console.log(`File ${parser.dir + fixturePath} doesn't exist or is opened.`)
-                            })
-                        })
-                        .catch(msg => {
-                            console.log(msg)
-                            return
-                        })
+                    parser.createFile(data, "Fixture.csv")
                 }
                 else {
                     updateLeaderboardFile(result)
@@ -129,7 +82,7 @@ module.exports = function(services, parser, utils, exec) {
                 }
             })
             .catch(function (errMsg) {
-                console.log(errMsg)
+                console.log(chalk.red.bold(errMsg))
             })
     }
 
@@ -139,25 +92,14 @@ module.exports = function(services, parser, utils, exec) {
                 if (readWrite == "read") {
                     var headers = parser.getHeadersUpperCased(result)
                     var data = parser.arrayToCsv(result, headers)
-                    parser.createFile(data, fixturePath)
-                        .then(msg => {
-                            console.log(msg)
-                            exec(`start ${parser.dir + fixturePath}`, (err, stdout, stderr) => {
-                                if (err != null)
-                                    console.log(`File ${parser.dir + fixturePath} doesn't exist or is opened.`)
-                            })
-                        })
-                        .catch(msg => {
-                            console.log(msg)
-                            return
-                        })
+                    parser.createFile(data, "Fixture.csv")
                 }
                 else {
                     updateLeaderboardFile(result)
                 }
             })
             .catch(function (errMsg) {
-                console.log(errMsg)
+                console.log(chalk.red.bold(errMsg))
             })
     }
 
@@ -167,48 +109,24 @@ module.exports = function(services, parser, utils, exec) {
                 if (readWrite == "read") {
                     var headers = parser.getHeadersUpperCased(result)
                     var data = parser.arrayToCsv(result, headers)
-                    parser.createFile(data, fixturePath)
-                        .then(msg => {
-                            console.log(msg)
-                            exec(`start ${parser.dir + fixturePath}`, (err, stdout, stderr) => {
-                                if (err != null)
-                                    console.log(`File ${parser.dir + fixturePath} doesn't exist or is opened.`)
-                            })
-                        })
-                        .catch(msg => {
-                            console.log(msg)
-                            return
-                        })
+                    parser.createFile(data, "Fixture.csv")
                 }
                 else {
                     updateLeaderboardFile(result)
                 }
             })
             .catch(function (errMsg) {
-                console.log(errMsg)
+                console.log(chalk.red.bold(errMsg))
             })
     }
 
     function updateLeaderboardFile(obj) {
-        parser.readFile(utils.CLAN_TAG + "Leaderboard.csv")
-            .then(data => {
-                leaderboard = parser.csvToArray(data.toString().split("\n"))
-                updatedLeaderboard = updateMembersInfo(obj, leaderboard)
-                updatedLeaderboard = parser.arrayToCsv(updatedLeaderboard, "RANK,NAME,POINTS,GAMES,WINS,DRAWS,LOSSES\n")
-                parser.createFile(updatedLeaderboard, utils.CLAN_TAG + "Leaderboard.csv")
-                    .then(msg => {
-                        console.log(msg)
-                        exec(`start ${parser.dir + fixturePath}`, (err, stdout, stderr) => {
-                            if (err != null)
-                                console.log(`File ${parser.dir + fixturePath} doesn't exist or is opened.`)
-                        })
-                    })
-                    .catch(msg => {
-                        console.log(msg)
-                        return
-                    })
-            })
-            .catch(msg => console.log(msg))
+        parser.readFile(utils.CLAN_TAG + "Leaderboard.csv", function (data) {
+            leaderboard = parser.csvToArray(data.toString().split("\n"))
+            updatedLeaderboard = updateMembersInfo(obj, leaderboard)
+            updatedLeaderboard = parser.arrayToCsv(updatedLeaderboard, "RANK,NAME,POINTS,GAMES,WINS,DRAWS,LOSSES\n")
+            parser.createFile(updatedLeaderboard, utils.CLAN_TAG + "Leaderboard.csv")
+        })
     }
 
     function updateMembersInfo(content, objToUpdate) {
