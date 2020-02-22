@@ -12,9 +12,9 @@ module.exports = function(readline, chalk) {
     })
 
     let readWriteOptions = [
-        {id: 1, word: "read", handler: readWriteHandler},
-        {id: 2, word: "write", handler: readWriteHandler},
-        {id: 3, word: "back", handler: backHandler}
+        {id: 1, word: "Read", handler: readWriteHandler},
+        {id: 2, word: "Write", handler: readWriteHandler},
+        {id: 3, word: "Back", handler: backHandler}
     ]
     
     var criterias
