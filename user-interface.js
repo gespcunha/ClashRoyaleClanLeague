@@ -51,7 +51,7 @@ module.exports = function(readline, chalk) {
                 else {
                     var word = readWriteOptionsObj.word
                     readWriteOptionsObj.handler(criteriaObj.handler, word)
-                    if (readWriteOptionsObj.word == "back")
+                    if (readWriteOptionsObj.word == "Back")
                         menu = 1
                     else 
                         rl.close()
