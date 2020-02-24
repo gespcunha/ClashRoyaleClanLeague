@@ -121,9 +121,9 @@ module.exports = function(fs, chalk, Excel) {
 
                 callback(result)
             })
-            .catch(function() {
+            /*.catch(function() {
                 console.log(chalk.red(`File ${fullPath} not found.`))
-            })
+            })*/
     }
 
     function fillColumns(worksheet, data, padding) {

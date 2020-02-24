@@ -6,12 +6,12 @@ The "database" is a ```csv file```.
 - [NodeJS](https://nodejs.org/)
 
 ## How to use
-Open a command line in the root folder of the project and execute one of the commands below.
-If it's the first time, execute ```npm install request```.
+If it's the first time, execute ```npm install request``` and ```npm install chalk```.
+Open a command line in the root folder of the project and execute the command in **Command to execute**.
 
-## Commands
+## Command to execute
 ```
-node control <criteria> <read | write>
+node control
 ```
   
 ### Criteria
@@ -38,7 +38,7 @@ Number of trophies.
 Creates a file named "Fixture" showing the fixture results.
 
 - **write** - 
-Updates the file with general file with a fixture's result. In case of criteria = leaderboard, the file sets 0 points to all players (starts the league).
+Updates the file with general data with a fixture's result. In case of criteria = leaderboard, the file sets 0 points to all players (starts the league).
 
 ## Clan tag
 To change the clan tag open the file ```utils.js``` and change the value of the variable ```CLAN_TAG```.
