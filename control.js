@@ -2,9 +2,11 @@ const fs = require('fs');
 const request = require('request')
 const readline = require('readline')
 const chalk = require('chalk')
+const Excel = require('exceljs')
+
 const router = require('./router')
 const userInterface = require('./user-interface')(readline, chalk)
-const parser = require('./parser')(fs, chalk)
+const parser = require('./parser')(fs, chalk, Excel)
 const points = require('./points')()
 const utils = require('./utils')()
 const clashApi = require('./clash-api')(request, utils, points)

@@ -6,9 +6,13 @@ module.exports = function(services, parser, utils, chalk) {
     if (!parser)
         throw "Invalid parser."    
 
+    if (!utils)
+        throw "Invalid utils."
+
     if (!chalk) 
         throw "Invalid chalk."
 
+        
     return {
         getDonations: getDonations,
         getTrophies: getTrophies,
@@ -19,15 +23,13 @@ module.exports = function(services, parser, utils, chalk) {
     }
 
     function getLeaderboard(readWrite) {
-        if (readWrite == "read") {
-            console.log(chalk.green("Just open the file ...Leaderboard"))
+        if (readWrite == "Read") {
+            console.log(chalk.green("Just open the file ...Leaderboard (if exists)."))
             return
         }
         services.getLeaderboard()
             .then(function (result) {
-                var headers = parser.getHeadersUpperCased(result)
-                var data = parser.arrayToCsv(result, headers)
-                parser.createFile(data, utils.CLAN_TAG + "Leaderboard.csv")
+                parser.createLeaderboard(result, utils.CLAN_TAG + "Leaderboard.xlsx")
             })
             .catch(function (errMsg) {
                 console.log(chalk.red.bold(errMsg))
@@ -37,10 +39,8 @@ module.exports = function(services, parser, utils, chalk) {
     function getWinRate(readWrite) {
         services.getWinRate()
             .then(function (result) {
-                if (readWrite == "read") {
-                    var headers = parser.getHeadersUpperCased(result)
-                    var data = parser.arrayToCsv(result, headers)
-                    parser.createFile(data, "Fixture.csv")
+                if (readWrite == "Read") {
+                    parser.createFixture(result, "Fixture.xlsx")
                 }
                 else {
                     updateLeaderboardFile(result)
@@ -54,10 +54,8 @@ module.exports = function(services, parser, utils, chalk) {
     function getTrophies(readWrite) {
         services.getTrophies()
             .then(function (result) {
-                if (readWrite == "read") {
-                    var headers = parser.getHeadersUpperCased(result)
-                    var data = parser.arrayToCsv(result, headers)
-                    parser.createFile(data, "Fixture.csv")
+                if (readWrite == "Read") {
+                    parser.createFixture(result, "Fixture.xlsx")
                 }
                 else {
                     updateLeaderboardFile(result)
@@ -71,14 +69,11 @@ module.exports = function(services, parser, utils, chalk) {
     function getDonations(readWrite) {
         services.getDonations()
             .then(function (result) {
-                if (readWrite == "read") {
-                    var headers = parser.getHeadersUpperCased(result)
-                    var data = parser.arrayToCsv(result, headers)
-                    parser.createFile(data, "Fixture.csv")
+                if (readWrite == "Read") {
+                    parser.createFixture(result, "Fixture.xlsx")
                 }
                 else {
                     updateLeaderboardFile(result)
-                    //console.table(result)
                 }
             })
             .catch(function (errMsg) {
@@ -89,10 +84,8 @@ module.exports = function(services, parser, utils, chalk) {
     function getParticipations(readWrite) {
         services.getParticipations()
             .then(function (result) {
-                if (readWrite == "read") {
-                    var headers = parser.getHeadersUpperCased(result)
-                    var data = parser.arrayToCsv(result, headers)
-                    parser.createFile(data, "Fixture.csv")
+                if (readWrite == "Read") {
+                    parser.createFixture(result, "Fixture.xlsx")
                 }
                 else {
                     updateLeaderboardFile(result)
@@ -106,10 +99,8 @@ module.exports = function(services, parser, utils, chalk) {
     function getCollectedCards(readWrite) {
         services.getCollectedCards()
             .then(function (result) {
-                if (readWrite == "read") {
-                    var headers = parser.getHeadersUpperCased(result)
-                    var data = parser.arrayToCsv(result, headers)
-                    parser.createFile(data, "Fixture.csv")
+                if (readWrite == "Read") {
+                    parser.createFixture(result, "Fixture.xlsx")
                 }
                 else {
                     updateLeaderboardFile(result)
@@ -121,11 +112,9 @@ module.exports = function(services, parser, utils, chalk) {
     }
 
     function updateLeaderboardFile(obj) {
-        parser.readFile(utils.CLAN_TAG + "Leaderboard.csv", function (data) {
-            leaderboard = parser.csvToArray(data.toString().split("\n"))
-            updatedLeaderboard = updateMembersInfo(obj, leaderboard)
-            updatedLeaderboard = parser.arrayToCsv(updatedLeaderboard, "RANK,NAME,POINTS,GAMES,WINS,DRAWS,LOSSES\n")
-            parser.createFile(updatedLeaderboard, utils.CLAN_TAG + "Leaderboard.csv")
+        parser.readFile(utils.CLAN_TAG + "Leaderboard.xlsx", function (data) {
+            let updatedLeaderboard = updateMembersInfo(obj, data)
+            parser.createLeaderboard(updatedLeaderboard, utils.CLAN_TAG + "Leaderboard.xlsx")
         })
     }
 
