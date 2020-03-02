@@ -9,7 +9,7 @@ const clashApi = require('./clash-api')(utils, points)
 const services = require('./services')(clashApi)
 const webApi = require('./web-api')(services, parser, utils, chalk)
 
-// ROUTES REGISTERS
+// Routing 
 router.register(1, "Leaderboard", webApi.getLeaderboard)
 router.register(2, "Donations", webApi.getDonations)
 router.register(3, "Trophies", webApi.getTrophies)
