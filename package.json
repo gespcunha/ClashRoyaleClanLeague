@@ -1,0 +1,24 @@
+{
+  "name": "clashroyaleclanleague",
+  "version": "1.0.0",
+  "description": "This is a simple command line application to run a **ClashRoyale league** in your clan. The available criterias are explained below. There isn't a fixed number of fixtures so you can do how many you want. The \"database\" is a ```csv file```.",
+  "main": "clash-api.js",
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geduardocunha/ClashRoyaleClanLeague.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/geduardocunha/ClashRoyaleClanLeague/issues"
+  },
+  "homepage": "https://github.com/geduardocunha/ClashRoyaleClanLeague#readme"
+}
