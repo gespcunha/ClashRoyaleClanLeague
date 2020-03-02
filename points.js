@@ -10,6 +10,7 @@ module.exports = function() {
     const MAX_LAST_WARS_PARTICIPATIONS = 9      // (Number)     this or higher
     const MAX_COLLECTED_CARDS = 2100            // (Number)     this or higher
     const MAX_MISSED_BATTLES = 1                // (Number)     from 0 to this
+    const WON_WAR_BATTLE = 1                    // (Number)     1 or 2 wins 
     
     // 1 point
     const MEDIUM_WIN_RATE = 45                  // (Percentage) this or higher
@@ -54,6 +55,10 @@ module.exports = function() {
                 case value <= MAX_MISSED_BATTLES:    return 3
                 case value <= MEDIUM_MISSED_BATTLES: return 1
                 default:                             return 0
+            }
+            case "winningWar": switch(true) {
+                case value >= WON_WAR_BATTLE:  return 1
+                default:                       return 0
             }
         }
     }

@@ -9,7 +9,8 @@ module.exports = function(utils, pointsConfig) {
         getWinRate: getWinRate,
         getParticipations: getParticipations,
         getCollectedCards: getCollectedCards,
-        getMissedCollectionsOrWars: getMissedCollectionsOrWars
+        getMissedCollectionsOrWars: getMissedCollectionsOrWars,
+        addPointForWinningWar: addPointForWinningWar
     }
 
     // Number of wars played by each player in the last 10 wars
@@ -218,8 +219,36 @@ module.exports = function(utils, pointsConfig) {
         })
     }
 
-     // War win rate over the last 10 wars
-     function getWinRate() {
+    // Adds 1 point to players that won the last war
+    function addPointForWinningWar() {
+        return new Promise(function(resolve, reject) {
+            const options = utils.options(utils.CLAN_LAST_WARS_URL)
+            var players = []
+            
+            request.get(options, (err, res, body) => {
+                if (err != null) {
+                    reject("Error - Something went wrong.")
+                    return
+                }       
+
+                body.items[0].participants.forEach(member => {
+                    player = {
+                        "name": member.name,
+                        "won": (member.wins >= 1) ? "Yes" : "No",
+                        "points": pointsConfig.getPoints("winningWar", member.wins)     
+                    }
+                    players.push(player)
+                })
+
+                players.sort(function(a, b){return b.points - a.points}) 
+                
+                resolve(players)  
+            })
+        }) 
+    }
+
+    // War win rate over the last 10 wars
+    function getWinRate() {
         return new Promise(function(resolve, reject) {
             var options = utils.options(utils.CLAN_LAST_WARS_URL)
             request.get(options, (err, res, body) => {

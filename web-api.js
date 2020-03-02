@@ -7,7 +7,8 @@ module.exports = function(services, parser, utils, chalk) {
         getWinRate: getWinRate,
         getParticipations: getParticipations,
         getCollectedCards: getCollectedCards,
-        getMissedCollectionsOrWars: getMissedCollectionsOrWars
+        getMissedCollectionsOrWars: getMissedCollectionsOrWars,
+        addPointForWinningWar: addPointForWinningWar
     }
 
     function getLeaderboard(readWrite) {
@@ -114,25 +115,42 @@ module.exports = function(services, parser, utils, chalk) {
             })
     }
 
-    function updateLeaderboardFile(obj) {
+    function addPointForWinningWar(readWrite) {
+        services.addPointForWinningWar()
+            .then(function(result) {
+                if (readWrite == "Read") {
+                    parser.createFixture(result, "Fixture.xlsx")
+                }
+                else {
+                    updateLeaderboardFile(result, false)
+                }
+            })
+            .catch(function(errMsg) {
+                console.log(chalk.red.bold(errMsg))
+            })
+    }
+
+    function updateLeaderboardFile(obj, isGame = true) {
         parser.readFile(utils.CLAN_TAG + "Leaderboard.xlsx", function (data) {
-            let updatedLeaderboard = updateMembersInfo(obj, data)
+            let updatedLeaderboard = updateMembersInfo(obj, data, isGame)
             parser.createLeaderboard(updatedLeaderboard, utils.CLAN_TAG + "Leaderboard.xlsx")
         })
     }
 
-    function updateMembersInfo(content, objToUpdate) {
+    function updateMembersInfo(content, objToUpdate, isGame = true) {
         content.forEach(newData => {
             objToUpdate.forEach(member => {
                 if (newData.name == member.name) {
                     member.points = parseInt(member.points)
                     member.points += newData.points
-                    switch (newData.points) {
-                        case 3: member.wins++; break
-                        case 1: member.draws++; break
-                        default: member.losses++; 
+                    if (isGame) {
+                        switch (newData.points) {
+                            case 3: member.wins++; break
+                            case 1: member.draws++; break
+                            default: member.losses++; 
+                        }
+                        member.games = parseInt(member.wins) + parseInt(member.draws) + parseInt(member.losses)
                     }
-                    member.games = parseInt(member.wins) + parseInt(member.draws) + parseInt(member.losses)
                 }
             })
         });

@@ -17,6 +17,7 @@ router.register(4, "Win rates", webApi.getWinRate)
 router.register(5, "Participations", webApi.getParticipations)
 router.register(6, "Average of collected cards", webApi.getCollectedCards)
 router.register(7, "Missed collections or wars", webApi.getMissedCollectionsOrWars)
+router.register(8, "Add a point to players that won the last war", webApi.addPointForWinningWar)
 
 var handlers = router.handlers
 userInterface.startUI(handlers)
