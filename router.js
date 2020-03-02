@@ -1,4 +1,5 @@
 let handlers = []
+
 module.exports = {
     register: register,
     handlers: handlers

@@ -1,17 +1,4 @@
 module.exports = function(services, parser, utils, chalk) {
-    
-    if (!services)
-        throw "Invalid services."
-
-    if (!parser)
-        throw "Invalid parser."    
-
-    if (!utils)
-        throw "Invalid utils."
-
-    if (!chalk) 
-        throw "Invalid chalk."
-
         
     return {
         getDonations: getDonations,

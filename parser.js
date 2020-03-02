@@ -1,13 +1,7 @@
-module.exports = function(fs, chalk, Excel) {
+module.exports = function(chalk) {
 
-    if (!fs) 
-        throw "Invalid fs."
-
-    if (!chalk) 
-        throw "Invalid chalk."
-    
-    if (!Excel)
-        throw "Invalid Excel."
+    const fs = require('fs')
+    const Excel = require('exceljs')
 
     var dir = './excel/';
 

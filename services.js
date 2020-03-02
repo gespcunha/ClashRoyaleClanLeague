@@ -1,8 +1,5 @@
 module.exports = function(api) {
 
-    if (!api) 
-        throw "Invalid api."
-
     return {
         getDonations: getDonations,
         getTrophies: getTrophies,

@@ -1,10 +1,6 @@
-module.exports = function(readline, chalk) {
+module.exports = function(chalk) {
 
-    if (!readline) 
-        throw "Invalid readline."
-        
-    if (!chalk) 
-        throw "Invalid chalk."
+    const readline = require('readline')
 
     var rl = readline.createInterface({
         input: process.stdin,

@@ -1,15 +1,11 @@
-const fs = require('fs');
-const request = require('request')
-const readline = require('readline')
-const chalk = require('chalk')
-const Excel = require('exceljs')
+const chalk = require('chalk') // this one stays because it's common to 3 modules
 
 const router = require('./router')
-const userInterface = require('./user-interface')(readline, chalk)
-const parser = require('./parser')(fs, chalk, Excel)
+const userInterface = require('./user-interface')(chalk)
+const parser = require('./parser')(chalk)
 const points = require('./points')()
 const utils = require('./utils')()
-const clashApi = require('./clash-api')(request, utils, points)
+const clashApi = require('./clash-api')(utils, points)
 const services = require('./services')(clashApi)
 const webApi = require('./web-api')(services, parser, utils, chalk)
 

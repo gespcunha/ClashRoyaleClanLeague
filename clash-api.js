@@ -1,13 +1,6 @@
-module.exports = function(request, utils, pointsConfig) {
+module.exports = function(utils, pointsConfig) {
 
-    if (!request) 
-        throw "Invalid request."
-
-    if (!utils) 
-        throw "Invalid utils."
-
-    if (!pointsConfig)
-        throw "Invalid points."
+    const request = require('request')
     
     return {
         getDonations: getDonations,
