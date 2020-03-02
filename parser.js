@@ -74,8 +74,8 @@ module.exports = function(fs, chalk, Excel) {
         
         worksheet.eachRow(function(row, rowNumber) {
             row.eachCell(function(cell, colNumber) {
-                let left = 'thin'
                 let right = 'thin'
+                let left = 'thin'
                 let fgColor
     
                 if (rowNumber == 1) {

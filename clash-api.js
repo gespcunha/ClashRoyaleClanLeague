@@ -15,7 +15,8 @@ module.exports = function(request, utils, pointsConfig) {
         getLeaderboard: getLeaderboard,
         getWinRate: getWinRate,
         getParticipations: getParticipations,
-        getCollectedCards: getCollectedCards
+        getCollectedCards: getCollectedCards,
+        getMissedCollectionsOrWars: getMissedCollectionsOrWars
     }
 
     // Number of wars played by each player in the last 10 wars
@@ -121,65 +122,6 @@ module.exports = function(request, utils, pointsConfig) {
         })
     }
 
-    // War win rate over the last 10 wars
-    function getWinRate() {
-        return new Promise(function(resolve, reject) {
-            var options = utils.options(utils.CLAN_LAST_WARS_URL)
-            request.get(options, (err, res, body) => {
-                if (err != null) {  
-                    reject("Error - Something went wrong.")
-                    return
-                }
-                fillParticipantsWinRate(body.items).then(result => resolve(result))
-            })
-
-            // res = Array of arrays representing each war
-            // Each war contains an array of participants
-            function fillParticipantsWinRate(items) {
-                var result = []
-                items.forEach(war => {
-                    var participants = war.participants
-                    for (var i = 0; i < participants.length; i++) {
-                        var player = participants[i]
-                        var found = false
-                        for (var j = 0; j < result.length; j++) {
-                            if (player.name == result[j].name) {
-                                result[j].numberOfBattles += player.numberOfBattles
-                                result[j].wins += player.wins
-                                found = true
-                                break
-                            }
-                        }
-                        if (!found) {
-                            var playerInfo = {
-                                "name": player.name,
-                                "numberOfBattles": player.numberOfBattles,
-                                "wins": player.wins
-                            }
-                            result.push(playerInfo)
-                        }
-                    }
-                })
-                
-                var participantsWinRates = []
-                result.forEach(player => {
-                    
-                    var winRate = Math.round(player.wins/ player.numberOfBattles * 100)
-
-                    var points = pointsConfig.getPoints("win_rate", winRate)
-
-                    participantsWinRates.push({
-                        "name": player.name, 
-                        "winRate": winRate,
-                        "points": points
-                    })
-                })
-                participantsWinRates.sort(function(a, b){return b.winRate - a.winRate})
-                return removeNotInClan(participantsWinRates)
-            }
-        })
-    }
-
     // Initiates the leaderboard
     function getLeaderboard() {
         return new Promise(function(resolve, reject) {
@@ -233,17 +175,21 @@ module.exports = function(request, utils, pointsConfig) {
 
                 players.sort(function(a, b){return b.trophies - a.trophies})
 
-                for (let i = 0; i < players.length; i++) {
-                    var points = pointsConfig.getPoints("trophies", i) 
-                    players[i]["points"] = points
-                }
+                removeNotInClan(players)
+                    .then(function(result) {
 
-                removeNotInClan(players).then(result => resolve(result))
+                        for (let i = 0; i < players.length; i++) {
+                            var points = pointsConfig.getPoints("trophies", i) 
+                            players[i]["points"] = points
+                        }
+                        resolve(result)
+                    }
+                )      
             })
         })
     }
 
-    // Each player donations during the season
+    // Each player's donations during the season
     function getDonations() {
         return new Promise(function(resolve, reject) {
             const options = utils.options(utils.CLAN_URL)
@@ -263,14 +209,135 @@ module.exports = function(request, utils, pointsConfig) {
                     players.push(player)
                 })
 
-                players.sort(function(a, b){return b.donations - a.donations});
+                players.sort(function(a, b){return b.donations - a.donations})
+
+                removeNotInClan(players)
+                    .then(function(result) {
+
+                        for (let i = 0; i < players.length; i++) {
+                            var points = pointsConfig.getPoints("donations", i) 
+                            players[i]["points"] = points
+                        }
+                        resolve(result)
+                    }
+                )                  
+            })
+        })
+    }
+
+     // War win rate over the last 10 wars
+     function getWinRate() {
+        return new Promise(function(resolve, reject) {
+            var options = utils.options(utils.CLAN_LAST_WARS_URL)
+            request.get(options, (err, res, body) => {
+                if (err != null) {  
+                    reject("Error - Something went wrong.")
+                    return
+                }
+                fillParticipantsWinRate(body.items).then(result => resolve(result))
+            })
+
+            // res = Array of arrays representing each war
+            // Each war contains an array of participants
+            function fillParticipantsWinRate(items) {
+                var result = []
+                items.forEach(war => {
+                    var participants = war.participants
+                    for (var i = 0; i < participants.length; i++) {
+                        var player = participants[i]
+                        var found = false
+                        for (var j = 0; j < result.length; j++) {
+                            if (player.name == result[j].name) {
+                                result[j].numberOfBattles += player.numberOfBattles
+                                result[j].wins += player.wins
+                                found = true
+                                break
+                            }
+                        }
+                        if (!found) {
+                            var playerInfo = {
+                                "name": player.name,
+                                "numberOfBattles": player.numberOfBattles,
+                                "wins": player.wins
+                            }
+                            result.push(playerInfo)
+                        }
+                    }
+                })
+                
+                var participantsWinRates = []
+                result.forEach(player => {
+                    
+                    var winRate = Math.round(player.wins/ player.numberOfBattles * 100)
+
+                    var points = pointsConfig.getPoints("win_rate", winRate)
+
+                    participantsWinRates.push({
+                        "name": player.name, 
+                        "winRate": winRate,
+                        "points": points
+                    })
+                })
+                participantsWinRates.sort(function(a, b){return b.points - a.points || b.winRate - a.winRate})
+                return removeNotInClan(participantsWinRates)
+            }
+        })
+    }
+
+    // Each player's number of missed collection day battles or war day battle
+    // over the last 10 wars
+    function getMissedCollectionsOrWars() {
+        return new Promise(function(resolve, reject) {
+            const options = utils.options(utils.CLAN_LAST_WARS_URL)
+
+            request.get(options, (err, res, body) => {
+                if (err != null) {  
+                    reject("Error - Something went wrong.")
+                    return
+                }
+                fillParticipantsMissedCollectionsOrWars(body.items).then(result => resolve(result))
+            })
+
+            // res = Array of arrays representing each war
+            // Each war contains an array of participants
+            function fillParticipantsMissedCollectionsOrWars(items) {
+                var players = []
+                items.forEach(war => {
+                    var participants = war.participants
+                    for (var i = 0; i < participants.length; i++) {
+                        var player = participants[i]
+                        var found = false
+                        for (var j = 0; j < players.length; j++) {
+                            if (player.name == players[j].name) {
+                                players[j].missedCollections += (3 - player.collectionDayBattlesPlayed)
+                                players[j].missedBattles += (player.numberOfBattles - player.battlesPlayed)
+                                players[j].total = players[j].missedCollections + players[j].missedBattles
+                                found = true
+                                break
+                            }
+                        }
+                        if (!found) {
+                            var missedCollections = 3 - player.collectionDayBattlesPlayed
+                            var missedBattles = player.numberOfBattles - player.battlesPlayed
+                            var playerInfo = {
+                                "name": player.name,
+                                "missedCollections": missedCollections,
+                                "missedBattles": missedBattles,
+                                "total": missedCollections + missedBattles
+                            }
+                            players.push(playerInfo)
+                        }
+                    }
+                })
+                
                 for (let i = 0; i < players.length; i++) {
-                    var points = pointsConfig.getPoints("donations", i) 
+                    var points = pointsConfig.getPoints("missedBattles", players[i].total) 
                     players[i]["points"] = points
                 }
-                
-                removeNotInClan(players).then(result => resolve(result))  
-            });
+                players.sort(function(a, b){return b.points - a.points || a.total - b.total})
+
+                return removeNotInClan(players)   
+            }
         })
     }
 

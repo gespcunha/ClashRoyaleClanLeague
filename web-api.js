@@ -19,7 +19,8 @@ module.exports = function(services, parser, utils, chalk) {
         getLeaderboard: getLeaderboard,
         getWinRate: getWinRate,
         getParticipations: getParticipations,
-        getCollectedCards: getCollectedCards
+        getCollectedCards: getCollectedCards,
+        getMissedCollectionsOrWars: getMissedCollectionsOrWars
     }
 
     function getLeaderboard(readWrite) {
@@ -107,6 +108,21 @@ module.exports = function(services, parser, utils, chalk) {
                 }
             })
             .catch(function (errMsg) {
+                console.log(chalk.red.bold(errMsg))
+            })
+    }
+
+    function getMissedCollectionsOrWars(readWrite) {
+        services.getMissedCollectionsOrWars()
+            .then(function(result) {
+                if (readWrite == "Read") {
+                    parser.createFixture(result, "Fixture.xlsx")
+                }
+                else {
+                    updateLeaderboardFile(result)
+                }
+            })
+            .catch(function(errMsg) {
                 console.log(chalk.red.bold(errMsg))
             })
     }

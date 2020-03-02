@@ -9,7 +9,8 @@ module.exports = function(api) {
         getLeaderboard: getLeaderboard,
         getWinRate: getWinRate,
         getParticipations: getParticipations,
-        getCollectedCards: getCollectedCards
+        getCollectedCards: getCollectedCards,
+        getMissedCollectionsOrWars: getMissedCollectionsOrWars
     }
 
     function getLeaderboard() {
@@ -34,5 +35,9 @@ module.exports = function(api) {
 
     function getCollectedCards() {
         return api.getCollectedCards()
+    }
+
+    function getMissedCollectionsOrWars() {
+        return api.getMissedCollectionsOrWars()
     }
 }

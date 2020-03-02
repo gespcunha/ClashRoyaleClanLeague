@@ -20,6 +20,7 @@ router.register(3, "Trophies", webApi.getTrophies)
 router.register(4, "Win rates", webApi.getWinRate)
 router.register(5, "Participations", webApi.getParticipations)
 router.register(6, "Average of collected cards", webApi.getCollectedCards)
+router.register(7, "Missed collections or wars", webApi.getMissedCollectionsOrWars)
 
 var handlers = router.handlers
 userInterface.startUI(handlers)
