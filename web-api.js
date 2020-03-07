@@ -17,117 +17,63 @@ module.exports = function(services, parser, utils, chalk) {
             return
         }
         services.getLeaderboard()
-            .then(function (result) {
-                parser.createLeaderboard(result, utils.CLAN_TAG + "Leaderboard.xlsx")
-            })
-            .catch(function (errMsg) {
-                console.log(chalk.red.bold(errMsg))
-            })
+            .then(function (result) { parser.createLeaderboard(result, utils.CLAN_TAG + "Leaderboard.xlsx") })
+            .catch(function(errMsg) { showErrMsg(errMsg) })
     }
 
     function getWinRate(readWrite) {
         services.getWinRate()
-            .then(function (result) {
-                if (readWrite == "Read") {
-                    parser.createFixture(result, "Fixture.xlsx")
-                }
-                else {
-                    updateLeaderboardFile(result)
-                }
-            })
-            .catch(function (errMsg) {
-                console.log(chalk.red.bold(errMsg))
-            })
+            .then(function (result) { processServicesResult(result, readWrite) })
+            .catch(function(errMsg) { showErrMsg(errMsg) })
     }
 
     function getTrophies(readWrite) {
         services.getTrophies()
-            .then(function (result) {
-                if (readWrite == "Read") {
-                    parser.createFixture(result, "Fixture.xlsx")
-                }
-                else {
-                    updateLeaderboardFile(result)
-                }
-            })
-            .catch(function (errMsg) {
-                console.log(chalk.red.bold(errMsg))
-            })
+            .then(function (result) { processServicesResult(result, readWrite) })
+            .catch(function(errMsg) { showErrMsg(errMsg) })
     }
 
     function getDonations(readWrite) {
         services.getDonations()
-            .then(function (result) {
-                if (readWrite == "Read") {
-                    parser.createFixture(result, "Fixture.xlsx")
-                }
-                else {
-                    updateLeaderboardFile(result)
-                }
-            })
-            .catch(function (errMsg) {
-                console.log(chalk.red.bold(errMsg))
-            })
+            .then(function (result) { processServicesResult(result, readWrite) })
+            .catch(function(errMsg) { showErrMsg(errMsg) })
     }
 
     function getParticipations(readWrite) {
         services.getParticipations()
-            .then(function (result) {
-                if (readWrite == "Read") {
-                    parser.createFixture(result, "Fixture.xlsx")
-                }
-                else {
-                    updateLeaderboardFile(result)
-                }
-            })
-            .catch(function (errMsg) {
-                console.log(chalk.red.bold(errMsg))
-            })
+            .then(function (result) { processServicesResult(result, readWrite) })
+            .catch(function(errMsg) { showErrMsg(errMsg) })
     }
 
     function getCollectedCards(readWrite) {
         services.getCollectedCards()
-            .then(function (result) {
-                if (readWrite == "Read") {
-                    parser.createFixture(result, "Fixture.xlsx")
-                }
-                else {
-                    updateLeaderboardFile(result)
-                }
-            })
-            .catch(function (errMsg) {
-                console.log(chalk.red.bold(errMsg))
-            })
+            .then(function (result) { processServicesResult(result, readWrite) })
+            .catch(function(errMsg) { showErrMsg(errMsg) }) 
     }
 
     function getMissedCollectionsOrWars(readWrite) {
         services.getMissedCollectionsOrWars()
-            .then(function(result) {
-                if (readWrite == "Read") {
-                    parser.createFixture(result, "Fixture.xlsx")
-                }
-                else {
-                    updateLeaderboardFile(result)
-                }
-            })
-            .catch(function(errMsg) {
-                console.log(chalk.red.bold(errMsg))
-            })
+            .then(function (result) { processServicesResult(result, readWrite) })
+            .catch(function(errMsg) { showErrMsg(errMsg) })
     }
 
     function addPointForWinningWar(readWrite) {
         services.addPointForWinningWar()
-            .then(function(result) {
-                if (readWrite == "Read") {
-                    parser.createFixture(result, "Fixture.xlsx")
-                }
-                else {
-                    updateLeaderboardFile(result, false)
-                }
-            })
-            .catch(function(errMsg) {
-                console.log(chalk.red.bold(errMsg))
-            })
+            .then(function (result) { processServicesResult(result, readWrite) })
+            .catch(function(errMsg) { showErrMsg(errMsg) })
+    }
+
+    function processServicesResult(result, readWrite) {
+        if (readWrite == "Read") {
+            parser.createFixture(result, "Fixture.xlsx")
+        }
+        else {
+            updateLeaderboardFile(result)
+        }
+    }
+
+    function showErrMsg(errMsg) {
+        console.log(chalk.red.bold(errMsg))
     }
 
     function updateLeaderboardFile(obj, isGame = true) {
