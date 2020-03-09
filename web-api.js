@@ -59,16 +59,16 @@ module.exports = function(services, parser, utils, chalk) {
 
     function addPointForWinningWar(readWrite) {
         services.addPointForWinningWar()
-            .then(function (result) { processServicesResult(result, readWrite) })
+            .then(function (result) { processServicesResult(result, readWrite, false) })
             .catch(function(errMsg) { showErrMsg(errMsg) })
     }
 
-    function processServicesResult(result, readWrite) {
+    function processServicesResult(result, readWrite, isGame = true) {
         if (readWrite == "Read") {
             parser.createFixture(result, "Fixture.xlsx")
         }
         else {
-            updateLeaderboardFile(result)
+            updateLeaderboardFile(result, isGame)
         }
     }
 
