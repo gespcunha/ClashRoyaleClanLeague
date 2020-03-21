@@ -1,4 +1,4 @@
-module.exports = function(utils, pointsConfig) {
+module.exports = function(utils, pointsConfig, parser) {
 
     const request = require('request')
     
@@ -14,20 +14,20 @@ module.exports = function(utils, pointsConfig) {
     }
 
     // Number of wars played by each player in the last 10 wars
-    function getParticipations() {
+    async function getParticipations() {
+        var competingPlayers = await leaderboardPlayers()
+        
         return new Promise(function(resolve, reject) {
-            var options = utils.options(utils.CLAN_LAST_WARS_URL)
+            var options = utils.requestOptions(utils.CLAN_LAST_WARS_URL)
 
             request.get(options, (err, res, body) => {
                 if (err != null) {  
                     reject("Error - Something went wrong.")
                     return
                 }
+                
                 fillParticipantsTimes(body.items).then(result => resolve(result))
             })
-
-            // data = Array of arrays representing each war
-            // Each war contains an array of participants
             function fillParticipantsTimes(items) {
                 var wars = []
                 var participantsTimes = []
@@ -35,35 +35,44 @@ module.exports = function(utils, pointsConfig) {
                     var participants = []
                     war.participants.forEach(participant => {
                         var name = participant.name
+                        if (!competingPlayers.includes(name)) 
+                            return // skips the iteration
+                        
                         participants.push({"name": name})
-                        if (participantsTimes[name]) 
-                            participantsTimes[name] += 1
+                        let elem = participantsTimes.find(e => e.name === name )
+                        if (elem) 
+                            elem.wars += 1
                         else
-                            participantsTimes[name] = 1
+                            participantsTimes.push({name: name, wars: 1})
                     })
                     wars.push(participants)
                 })
-                
-                var final = []
-                for (const [name, wars] of Object.entries(participantsTimes)) {
-                    var points =  pointsConfig.getPoints("participations", wars)
+                return utils.removeNotInClan(participantsTimes).then(function(participantsTimes) {
+                    return new Promise(function(resolve, reject) {
+                        var final = []
+                        participantsTimes.forEach(participant => {
+                            var points =  pointsConfig.getPoints("participations", participant.wars)
 
-                    final.push({
-                        "name": name, 
-                        "wars": wars,
-                        "points": points
+                            final.push({
+                                "name": participant.name, 
+                                "wars": participant.wars,
+                                "points": points
+                            })
+                        })
+                        final.sort(function(a, b){return b.wars - a.wars})
+                        resolve(final)
                     })
-                }
-                final.sort(function(a, b){return b.wars - a.wars});
-                return removeNotInClan(final)
+                })
             }
         })
     }
 
     // Collected cards by each player over the last 10 wars
-    function getCollectedCards() {
+    async function getCollectedCards() {
+        var competingPlayers = await leaderboardPlayers()
+
         return new Promise(function(resolve, reject) {
-            const options = utils.options(utils.CLAN_LAST_WARS_URL)
+            const options = utils.requestOptions(utils.CLAN_LAST_WARS_URL)
 
             request.get(options, (err, res, body) => {
                 if (err != null) {  
@@ -97,21 +106,29 @@ module.exports = function(utils, pointsConfig) {
                         }
                     }
                 })
-                var final = []
-                result.forEach(player => {
-                    
-                    var cardsEarned = parseInt(player.cardsEarned / player.warsPlayed)
-                    var points = pointsConfig.getPoints("cardsEarned", cardsEarned)
+                
+                return utils.removeNotInClan(result).then(function(result) {
+                    return new Promise(function(resolve, reject) {
 
-                    final.push({
-                        "name": player.name, 
-                        "warsPlayed": player.warsPlayed,
-                        "cardsEarned": cardsEarned,
-                        "points": points
+                        var final = []
+                        
+                        result.forEach(player => {
+                            if (!competingPlayers.includes(player.name))
+                                return
+                            var cardsEarned = parseInt(player.cardsEarned / player.warsPlayed)
+                            var points = pointsConfig.getPoints("cardsEarned", cardsEarned)
+                            
+                            final.push({
+                                "name": player.name, 
+                                "warsPlayed": player.warsPlayed,
+                                "cardsEarned": cardsEarned,
+                                "points": points
+                            })
+                        })
+                        final.sort(function(a, b){return b.cardsEarned - a.cardsEarned || b.warsPlayed - a.warsPlayed})
+                        resolve(final)
                     })
                 })
-                final.sort(function(a, b){return b.cardsEarned - a.cardsEarned || b.warsPlayed - a.warsPlayed})
-                return removeNotInClan(final)
             }
         })
     }
@@ -119,7 +136,7 @@ module.exports = function(utils, pointsConfig) {
     // Initiates the leaderboard
     function getLeaderboard() {
         return new Promise(function(resolve, reject) {
-            var options = utils.options(utils.CLAN_URL)
+            var options = utils.requestOptions(utils.CLAN_URL)
             var members = []
 
             request.get(options, (err, res, body) => {
@@ -147,9 +164,11 @@ module.exports = function(utils, pointsConfig) {
     }
 
     // Trophies
-    function getTrophies() {
+    async function getTrophies() {
+        var competingPlayers = await leaderboardPlayers()
+
         return new Promise(function(resolve, reject) {
-            var options = utils.options(utils.CLAN_URL)
+            var options = utils.requestOptions(utils.CLAN_URL)
 
             var players = []
 
@@ -160,6 +179,8 @@ module.exports = function(utils, pointsConfig) {
                 }
 
                 res.body.memberList.forEach(member => {
+                    if (!competingPlayers.includes(member.name))
+                        return
                     player = {
                         "name": member.name,
                         "trophies": member.trophies
@@ -169,11 +190,14 @@ module.exports = function(utils, pointsConfig) {
 
                 players.sort(function(a, b){return b.trophies - a.trophies})
 
-                removeNotInClan(players)
+                utils.removeNotInClan(players)
                     .then(function(result) {
+                        
+                        var threePoints = players.length / 3 
+                        var onePoint = (players.length / 3) * 2
 
                         for (let i = 0; i < players.length; i++) {
-                            var points = pointsConfig.getPoints("trophies", i) 
+                            var points = pointsConfig.getPoints("trophies", i, threePoints, onePoint) 
                             players[i]["points"] = points
                         }
                         resolve(result)
@@ -184,9 +208,11 @@ module.exports = function(utils, pointsConfig) {
     }
 
     // Each player's donations during the season
-    function getDonations() {
+    async function getDonations() {
+        var competingPlayers = await leaderboardPlayers()
+        
         return new Promise(function(resolve, reject) {
-            const options = utils.options(utils.CLAN_URL)
+            const options = utils.requestOptions(utils.CLAN_URL)
             var players = []
             
             request.get(options, (err, res, body) => {
@@ -196,6 +222,8 @@ module.exports = function(utils, pointsConfig) {
                 }    
 
                 res.body.memberList.forEach(member => {
+                    if (!competingPlayers.includes(member.name))
+                        return
                     player = {
                         "name": member.name,
                         "donations": member.donations                    
@@ -205,11 +233,13 @@ module.exports = function(utils, pointsConfig) {
 
                 players.sort(function(a, b){return b.donations - a.donations})
 
-                removeNotInClan(players)
+                utils.removeNotInClan(players)
                     .then(function(result) {
+                        var threePoints = players.length / 3 
+                        var onePoint = (players.length / 3) * 2
 
                         for (let i = 0; i < players.length; i++) {
-                            var points = pointsConfig.getPoints("donations", i) 
+                            var points = pointsConfig.getPoints("donations", i, threePoints, onePoint) 
                             players[i]["points"] = points
                         }
                         resolve(result)
@@ -220,9 +250,11 @@ module.exports = function(utils, pointsConfig) {
     }
 
     // Adds 1 point to players that won the last war
-    function addPointForWinningWar() {
+    async function addPointForWinningWar() {
+        var competingPlayers = await leaderboardPlayers()
+
         return new Promise(function(resolve, reject) {
-            const options = utils.options(utils.CLAN_LAST_WARS_URL)
+            const options = utils.requestOptions(utils.CLAN_LAST_WARS_URL)
             var players = []
             
             request.get(options, (err, res, body) => {
@@ -232,6 +264,8 @@ module.exports = function(utils, pointsConfig) {
                 }       
 
                 body.items[0].participants.forEach(member => {
+                    if (!competingPlayers.includes(member.name))
+                        return
                     player = {
                         "name": member.name,
                         "won": (member.wins >= 1) ? "Yes" : "No",
@@ -248,9 +282,11 @@ module.exports = function(utils, pointsConfig) {
     }
 
     // War win rate over the last 10 wars
-    function getWinRate() {
+    async function getWinRate() {
+        var competingPlayers = await leaderboardPlayers()
+
         return new Promise(function(resolve, reject) {
-            var options = utils.options(utils.CLAN_LAST_WARS_URL)
+            var options = utils.requestOptions(utils.CLAN_LAST_WARS_URL)
             request.get(options, (err, res, body) => {
                 if (err != null) {  
                     reject("Error - Something went wrong.")
@@ -287,30 +323,37 @@ module.exports = function(utils, pointsConfig) {
                     }
                 })
                 
-                var participantsWinRates = []
-                result.forEach(player => {
-                    
-                    var winRate = Math.round(player.wins/ player.numberOfBattles * 100)
+                return utils.removeNotInClan(result).then(function(result) {
+                    return new Promise(function(resolve, reject) {
+                        var participantsWinRates = []
+                        result.forEach(player => {
+                            if (!competingPlayers.includes(player.name))
+                                return
+                            var winRate = Math.round(player.wins/ player.numberOfBattles * 100)
 
-                    var points = pointsConfig.getPoints("win_rate", winRate)
+                            var points = pointsConfig.getPoints("win_rate", winRate)
 
-                    participantsWinRates.push({
-                        "name": player.name, 
-                        "winRate": winRate,
-                        "points": points
+                            participantsWinRates.push({
+                                "name": player.name, 
+                                "winRate": winRate,
+                                "points": points
+                            })
+                        })
+                        participantsWinRates.sort(function(a, b){return b.points - a.points || b.winRate - a.winRate})
+                        resolve(participantsWinRates)
                     })
                 })
-                participantsWinRates.sort(function(a, b){return b.points - a.points || b.winRate - a.winRate})
-                return removeNotInClan(participantsWinRates)
             }
         })
     }
 
     // Each player's number of missed collection day battles or war day battle
     // over the last 10 wars
-    function getMissedCollectionsOrWars() {
+    async function getMissedCollectionsOrWars() {
+        var competingPlayers = await leaderboardPlayers()
+        
         return new Promise(function(resolve, reject) {
-            const options = utils.options(utils.CLAN_LAST_WARS_URL)
+            const options = utils.requestOptions(utils.CLAN_LAST_WARS_URL)
 
             request.get(options, (err, res, body) => {
                 if (err != null) {  
@@ -347,54 +390,29 @@ module.exports = function(utils, pointsConfig) {
                                 "missedBattles": missedBattles,
                                 "total": missedCollections + missedBattles
                             }
-                            players.push(playerInfo)
+                            if (competingPlayers.includes(playerInfo.name))
+                                players.push(playerInfo)
                         }
                     }
                 })
-                
+
                 for (let i = 0; i < players.length; i++) {
                     var points = pointsConfig.getPoints("missedBattles", players[i].total) 
                     players[i]["points"] = points
                 }
                 players.sort(function(a, b){return b.points - a.points || a.total - b.total})
 
-                return removeNotInClan(players)   
+                return utils.removeNotInClan(players)   
             }
         })
     }
 
-    // removes players that aren't in the clan
-    function removeNotInClan(allPlayers) {
+    function leaderboardPlayers() {
         return new Promise(function(resolve, reject) {
-            var options = utils.options(utils.CLAN_URL)
-            var inClan = []
-
-            request.get(options, (err, res, body) => {
-                if (err != null) {
-                    console.log(err)
-                    return
-                } 
-
-                res.body.memberList.forEach(member => {
-                    inClan.push({
-                        "name": member.name
-                    })
-                })
-                
-                for (var i = allPlayers.length-1; i >= 0; i--) {
-                    var found = false
-                    for (var j = 0; j < inClan.length; j++) {
-                        if (allPlayers[i].name == inClan[j].name) {
-                            found = true
-                            break
-                        }            
-                    }
-                    if (!found)
-                        allPlayers.splice(i,1)
-                }
-
-                resolve(allPlayers)
-            })
-        })        
+            parser.readFile(utils.CLAN_TAG + "Leaderboard.xlsx", function (data) {
+                var result = data.map(ele => ele.name) // string array
+                resolve(result)
+            })   
+        })
     }
 }

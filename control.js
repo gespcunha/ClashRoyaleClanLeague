@@ -5,7 +5,7 @@ const userInterface = require('./user-interface')(chalk)
 const parser = require('./parser')(chalk)
 const points = require('./points')()
 const utils = require('./utils')()
-const clashApi = require('./clash-api')(utils, points)
+const clashApi = require('./clash-api')(utils, points, parser)
 const services = require('./services')(clashApi)
 const webApi = require('./web-api')(services, parser, utils, chalk)
 

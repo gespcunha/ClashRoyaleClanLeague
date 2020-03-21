@@ -5,8 +5,6 @@ module.exports = function() {
 
     // 3 points
     const MAX_WIN_RATE = 65                     // (Percentage) this or higher
-    const MAX_TROPHIES = 11                     // (Position)   from 1 to this
-    const MAX_DONATIONS_RANKING = 11            // (Position)   from 1 to this
     const MAX_LAST_WARS_PARTICIPATIONS = 9      // (Number)     this or higher
     const MAX_COLLECTED_CARDS = 2100            // (Number)     this or higher
     const MAX_MISSED_BATTLES = 1                // (Number)     from 0 to this
@@ -14,8 +12,6 @@ module.exports = function() {
     
     // 1 point
     const MEDIUM_WIN_RATE = 45                  // (Percentage) this or higher
-    const MEDIUM_TROPHIES = 22                  // (Position)   from max number of members to this
-    const MEDIUM_DONATIONS_RANKING = 22         // (Position)   from max number of members to this
     const MEDIUM_LAST_WARS_PARTICIPATIONS = 7   // (Number)     this or higher
     const MEDIUM_COLLECTED_CARDS = 1900         // (Number)     this or higher
     const MEDIUM_MISSED_BATTLES = 3             // (Number)     from max missed battles to this
@@ -24,7 +20,7 @@ module.exports = function() {
         getPoints: getPoints
     }
     
-    function getPoints(criteria, value) {
+    function getPoints(criteria, value, threePoints = null, onePoint = null) {
         switch (criteria) {
             case "win_rate": switch (true) {
                 case value >= MAX_WIN_RATE:    return 3
@@ -37,9 +33,9 @@ module.exports = function() {
                 default:                                       return 0
             } 
             case "donations": switch(true) {
-                case value <= MAX_DONATIONS_RANKING:    return 3
-                case value <= MEDIUM_DONATIONS_RANKING: return 1
-                default:                                return 0
+                case value <= threePoints:  return 3
+                case value <= onePoint:     return 1
+                default:                    return 0
             }
             case "cardsEarned": switch (true) {
                 case value >= MAX_COLLECTED_CARDS:    return 3
@@ -47,9 +43,9 @@ module.exports = function() {
                 default:                              return 0
             }
             case "trophies":  switch (true) {
-                case value <= MAX_TROPHIES:    return 3
-                case value <= MEDIUM_TROPHIES: return 1
-                default:                       return 0
+                case value <= threePoints:  return 3
+                case value <= onePoint:     return 1
+                default:                    return 0
             }
             case "missedBattles": switch(true) {
                 case value <= MAX_MISSED_BATTLES:    return 3

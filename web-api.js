@@ -78,8 +78,10 @@ module.exports = function(services, parser, utils, chalk) {
 
     function updateLeaderboardFile(obj, isGame = true) {
         parser.readFile(utils.CLAN_TAG + "Leaderboard.xlsx", function (data) {
-            let updatedLeaderboard = updateMembersInfo(obj, data, isGame)
-            parser.createLeaderboard(updatedLeaderboard, utils.CLAN_TAG + "Leaderboard.xlsx")
+            utils.removeNotInClan(data).then(function(data) {
+                let updatedLeaderboard = updateMembersInfo(obj, data, isGame)
+                parser.createLeaderboard(updatedLeaderboard, utils.CLAN_TAG + "Leaderboard.xlsx")
+            })
         })
     }
 
