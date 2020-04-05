@@ -46,4 +46,4 @@ To change the clan tag open the file ```utils.js``` and change the value of the 
 <br/><br/>
 
 ## Points values
-To change the values of points corresponding to each **criteria**, open the file ```points.js``` and change the values under the comment ```POINTS TO EACH CRITERIA```.
+To change the values of points corresponding to each  **criteria**, open the file ```points.js``` and change the values under the comment ```POINTS TO EACH CRITERIA```.
