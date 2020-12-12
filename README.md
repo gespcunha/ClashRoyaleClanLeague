@@ -9,7 +9,7 @@ This is a simple command line application to run a **ClashRoyale league** in you
 
 ## How to use
 - Open a command line in the root folder of the project.
-- If it's the first time running the program, execute ```npm install```.
+- If it's the first time running the program, execute ```npm install``` and ```npm install exceljs``` if the first doesn't work alone.
 - Execute the command ```node control```.
 
 ## Clan tag
