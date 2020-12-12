@@ -1,4 +1,4 @@
-**Outdated** 
+# Outdated
 The game **Clash Royale** has been updated and deleted some features. This application will no longer be of use.
 
 # ClashRoyale Clan League
