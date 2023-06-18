@@ -1,5 +1,8 @@
 # Outdated
-The game **Clash Royale** has been updated and some features were removed. This application will no longer be of use.
+The game **Clash Royale** has been updated and some features were removed. This application is no longer usable.
+
+# Why
+I started this project alongside my college degree, in order to learn javascript and test my skills.
 
 # ClashRoyale Clan League
 This is a simple command line application to run a **ClashRoyale league** in your clan. The available criterias are explained below. There isn't a fixed number of fixtures so you can do how many you want. The "database" is an ```excel file```.
